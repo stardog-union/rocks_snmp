@@ -205,60 +205,55 @@ bool SnmpAgent::CloseCallback(int EpollFlags) {
  * @author matthewv
  * @returns  true if edge handled to state transition
  */
-bool
-SnmpAgent::EdgeNotification(
-    unsigned int EdgeId,               //!< what just happened, what graph edge are we walking
-    StateMachinePtr & Caller,          //!< what state machine object initiated the edge
-    bool PreNotify)                    //!< for watchers, is the before or after owner processes
+bool SnmpAgent::EdgeNotification(
+    unsigned int EdgeId, //!< what just happened, what graph edge are we walking
+    StateMachinePtr &Caller, //!< what state machine object initiated the edge
+    bool PreNotify) //!< for watchers, is the before or after owner processes
 {
-    bool used;
+  bool used;
 
-    used=false;
+  used = false;
 
-    // only care about our own events
-    if (this==Caller.get())
-    {
-        switch(EdgeId)
-        {
-            case TcpEventSocket::TS_EDGE_CONNECTED:
-                // TcpEventSocket sets ESTABLISHED state
-                used=TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
-                if (used)
-                    used=ProcessConnection();
-                break;
+  // only care about our own events
+  if (this == Caller.get()) {
+    switch (EdgeId) {
+    case TcpEventSocket::TS_EDGE_CONNECTED:
+      // TcpEventSocket sets ESTABLISHED state
+      used = TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
+      if (used)
+        used = ProcessConnection();
+      break;
 
-            // a write buffer fully sent
-            case RW_EDGE_SENT:
-                used=TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
-                //ProcessCurrentResponse();
-                break;
+    // a write buffer fully sent
+    case RW_EDGE_SENT:
+      used = TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
+      // ProcessCurrentResponse();
+      break;
 
-            // a PDU has arrived from the master
-            case RW_EDGE_RECEIVED:
-                used=ProcessInboundPdu();
-                break;
+    // a PDU has arrived from the master
+    case RW_EDGE_RECEIVED:
+      used = ProcessInboundPdu();
+      break;
 
-            default:
-                // send down a level.  If not used then it is an error
-                used=TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
-                if (!used)
-                {
-                    Logging(LOG_ERR, "SnmpAgent::%s: unknown edge value passed [EdgeId=%u]",
-                            __func__, EdgeId);
-                    SendEdge(RW_EDGE_ERROR);
-                }   // if
-                break;
-        }   // switch
-    }   // if
+    default:
+      // send down a level.  If not used then it is an error
+      used = TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
+      if (!used) {
+        Logging(LOG_ERR, "SnmpAgent::%s: unknown edge value passed [EdgeId=%u]",
+                __func__, EdgeId);
+        SendEdge(RW_EDGE_ERROR);
+      } // if
+      break;
+    } // switch
+  }   // if
 
-    else
-    {
-        used=TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
-    }   // else
+  else {
+    used = TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
+  } // else
 
-    return(used);
+  return (used);
 
-}   // SnmpAgent::EdgeNotifications
+} // SnmpAgent::EdgeNotifications
 
 /**
  * TCP connection established, send PDU Open to snmp master

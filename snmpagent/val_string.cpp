@@ -8,12 +8,10 @@
  */
 
 #ifndef VAL_STRING_H
-    #include "val_string.h"
+#include "val_string.h"
 #endif
 
-
-struct VarBindHeader gVarString={eOctetString,0};
-
+struct VarBindHeader gVarString = {eOctetString, 0};
 
 /**
  * Initialize the data members.

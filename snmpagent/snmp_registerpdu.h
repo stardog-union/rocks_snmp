@@ -4,7 +4,8 @@
  * @date July 10, 2011
  * @date Copyright 2011-2012
  *
- * @brief Declarations for snmp agentX register pdu object (rfc 2741, January 2000)
+ * @brief Declarations for snmp agentX register pdu object (rfc 2741, January
+ * 2000)
  */
 
 #ifndef SNMP_REGISTERPDU_H
@@ -18,65 +19,59 @@ typedef std::shared_ptr<class RegisterPDU> RegisterPDUPtr;
  * Buffer for sending agentx-Open-PDU packet
  * @date created 07/09/11
  */
-class RegisterPDU : public ReaderWriterBuf
-{
-    /****************************************************************
-    *  Member objects
-    ****************************************************************/
+class RegisterPDU : public ReaderWriterBuf {
+  /****************************************************************
+   *  Member objects
+   ****************************************************************/
 public:
-
 protected:
-    struct iovec m_RegisterPDUVec[3];       //!< m_Header [0], timeout [1], oid [2]
-    size_t m_RegisterPDUSent;               //!< bytes received so far
+  struct iovec m_RegisterPDUVec[3]; //!< m_Header [0], timeout [1], oid [2]
+  size_t m_RegisterPDUSent;         //!< bytes received so far
 
-    PduHeader m_Header;                 //!< first 20 bytes of packet, contains length
-    PduTimeoutOid m_TimeoutOid;
-    const unsigned * m_Oid;
-    unsigned m_OidLen;
+  PduHeader m_Header; //!< first 20 bytes of packet, contains length
+  PduTimeoutOid m_TimeoutOid;
+  const unsigned *m_Oid;
+  unsigned m_OidLen;
 
 private:
-
-    /****************************************************************
-    *  Member functions
-    ****************************************************************/
+  /****************************************************************
+   *  Member functions
+   ****************************************************************/
 public:
-    //
-    // standard interface for ReaderWriterBuf
-    //
+  //
+  // standard interface for ReaderWriterBuf
+  //
 
-    RegisterPDU(class SnmpAgent & Agent);
+  RegisterPDU(class SnmpAgent &Agent);
 
-    virtual ~RegisterPDU();
+  virtual ~RegisterPDU();
 
+  //
+  virtual const struct iovec *WriteIovec();
 
-    //
-    virtual const struct iovec * WriteIovec();
+  virtual int WriteIovecCnt() { return (3); };
 
-    virtual int WriteIovecCnt() {return(3);};
+  virtual size_t WriteLen() { return (m_RegisterPDUSent); };
 
-    virtual size_t WriteLen() {return(m_RegisterPDUSent);};
+  virtual void WriteMarkLen(size_t Written) { m_RegisterPDUSent += Written; };
 
-    virtual void WriteMarkLen(size_t Written) {m_RegisterPDUSent+=Written;};
+  virtual size_t WriteEnd() {
+    return (sizeof(m_Header) + sizeof(m_TimeoutOid) + m_OidLen * 4);
+  };
 
-    virtual size_t WriteEnd()
-    {return(sizeof(m_Header)+sizeof(m_TimeoutOid)+m_OidLen*4);};
+  //
+  // custom routines
+  //
 
-
-    //
-    // custom routines
-    //
-
-    // debug
-    void Dump();
+  // debug
+  void Dump();
 
 protected:
-
 private:
-    RegisterPDU();                             //!< disabled:  default constructor
-    RegisterPDU(const RegisterPDU & );             //!< disabled:  copy operator
-    RegisterPDU & operator=(const RegisterPDU &);  //!< disabled:  assignment operator
-};  // class RegisterPDU
-
-
+  RegisterPDU();                    //!< disabled:  default constructor
+  RegisterPDU(const RegisterPDU &); //!< disabled:  copy operator
+  RegisterPDU &
+  operator=(const RegisterPDU &); //!< disabled:  assignment operator
+};                                // class RegisterPDU
 
 #endif // ifndef SNMP_REGISTERPDU_H

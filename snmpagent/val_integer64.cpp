@@ -8,12 +8,10 @@
  */
 
 #ifndef VAL_INTEGER64_H
-    #include "val_integer64.h"
+#include "val_integer64.h"
 #endif
 
-
-struct VarBindHeader gVarCounter64={eCounter64,0};
-
+struct VarBindHeader gVarCounter64 = {eCounter64, 0};
 
 /**
  * Initialize the data members.

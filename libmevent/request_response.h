@@ -18,83 +18,81 @@
 
 typedef std::shared_ptr<class RequestResponse> RequestResponsePtr;
 
-
 /**
  * Write Request, read Response
  *
  * Use events from TcpEventSocket
  */
 
-class RequestResponse : public TcpEventSocket
-{
-    /****************************************************************
-    *  Member objects
-    ****************************************************************/
+class RequestResponse : public TcpEventSocket {
+  /****************************************************************
+   *  Member objects
+   ****************************************************************/
 public:
-
-    /// nodes and edges from TcpEventSocket
+  /// nodes and edges from TcpEventSocket
 
 protected:
-    RequestResponseQueue_t m_ReqQueue;    //<! ordered list of requests to send
-    RequestResponseBufPtr m_CurRequest;   //<! request being processed currently
+  RequestResponseQueue_t m_ReqQueue;  //<! ordered list of requests to send
+  RequestResponseBufPtr m_CurRequest; //<! request being processed currently
 
-    RequestResponseQueue_t m_ReqNotify;   //<! ordered list of requests that completed
-    bool m_ReqNotifyLock;                 //<! (engine single threaded) flag to "lock" notifications
+  RequestResponseQueue_t
+      m_ReqNotify;      //<! ordered list of requests that completed
+  bool m_ReqNotifyLock; //<! (engine single threaded) flag to "lock"
+                        //notifications
 private:
-
-    /****************************************************************
-    *  Member functions
-    ****************************************************************/
+  /****************************************************************
+   *  Member functions
+   ****************************************************************/
 public:
+  RequestResponse(unsigned IpHostOrder, unsigned PortHostOrder);
 
-    RequestResponse(unsigned IpHostOrder, unsigned PortHostOrder);
+  virtual ~RequestResponse();
 
-    virtual ~RequestResponse();
+  /// debug
+  void Dump();
 
-    /// debug
-    void Dump();
+  /// get data from handle
+  void AddRequest(RequestResponseBufPtr &Buffer);
+  void AddRequest(RequestResponseBuf &Buffer) {
+    RequestResponseBufPtr ptr(&Buffer);
+    AddRequest(ptr);
+  };
 
-    /// get data from handle
-    void AddRequest(RequestResponseBufPtr & Buffer);
-    void AddRequest(RequestResponseBuf & Buffer)
-    {RequestResponseBufPtr ptr(&Buffer); AddRequest(ptr);};
+  //
+  // statemachine callbacks
+  //
+  //    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr &
+  //    Caller, bool PreNotify);
 
-    //
-    // statemachine callbacks
-    //
-    //    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr & Caller, bool PreNotify);
+  //
+  // meventobj callbacks
+  //
 
-    //
-    // meventobj callbacks
-    //
+  /// allows initialization by independent event thread where appropriate
+  virtual void ThreadInit(MEventMgrPtr &Mgr);
 
-    /// allows initialization by independent event thread where appropriate
-    virtual void ThreadInit(MEventMgrPtr & Mgr);
+  /// External callback used when time value expires
+  virtual void TimerCallback();
 
-    /// External callback used when time value expires
-    virtual void TimerCallback();
-
-    /// External callback when handle contains error flag
-    virtual bool ErrorCallback();
-
+  /// External callback when handle contains error flag
+  virtual bool ErrorCallback();
 
 protected:
-    /// start another request if one not already pending
-    void ProcessNextRequest();
+  /// start another request if one not already pending
+  void ProcessNextRequest();
 
-    /// request sent, get the response ... please
-    void ProcessCurrentResponse();
+  /// request sent, get the response ... please
+  void ProcessCurrentResponse();
 
-    /// send notification in order, knowing the recursive nature of mevent
-    void ProcessRequestNotifications();
+  /// send notification in order, knowing the recursive nature of mevent
+  void ProcessRequestNotifications();
 
 private:
-    RequestResponse();                                     //!< disabled:  use 2 integer constructor
-    RequestResponse(const RequestResponse & );             //!< disabled:  copy operator
-    RequestResponse & operator=(const RequestResponse &);  //!< disabled:  assignment operator
+  RequestResponse(); //!< disabled:  use 2 integer constructor
+  RequestResponse(const RequestResponse &); //!< disabled:  copy operator
+  RequestResponse &
+  operator=(const RequestResponse &); //!< disabled:  assignment operator
 
-};  // RequestResponse
-
-
+}; // RequestResponse
 
 #endif // ifndef REQUEST_RESPONSE_H

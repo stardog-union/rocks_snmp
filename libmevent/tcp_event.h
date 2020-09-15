@@ -12,9 +12,7 @@
 
 #include "reader_writer.h"
 
-
 typedef std::shared_ptr<class TcpEventSocket> TcpEventSocketPtr;
-
 
 /*! \class TcpEventSocket
 
@@ -64,101 +62,96 @@ f -> a [label="failed"];
 }
 \enddot
  */
-class TcpEventSocket : public ReaderWriter
-{
-    /****************************************************************
-    *  Member objects
-    ****************************************************************/
+class TcpEventSocket : public ReaderWriter {
+  /****************************************************************
+   *  Member objects
+   ****************************************************************/
 public:
-    /// list of state nodes
-    enum TcpEventSocketNode_e
-    {
-        TS_NODE_CLOSED=200,     //!< socket / connection closed
-        TS_NODE_CONNECTING=201, //!< connection attempt in process
-        TS_NODE_ESTABLISHED=202,//!< connection successful, doing nothing
-        TS_NODE_READING=203,    //!< awaiting data for read
-        TS_NODE_WRITING=204,    //!< awaiting to write
-        TS_NODE_READ_WRITE=205, //!< awaiting both read and write
-        TS_NODE_ERROR=206,      //!< unexpected error
-        TS_NODE_TIMEOUT=207,    //!< something took too long
-    };
+  /// list of state nodes
+  enum TcpEventSocketNode_e {
+    TS_NODE_CLOSED = 200,      //!< socket / connection closed
+    TS_NODE_CONNECTING = 201,  //!< connection attempt in process
+    TS_NODE_ESTABLISHED = 202, //!< connection successful, doing nothing
+    TS_NODE_READING = 203,     //!< awaiting data for read
+    TS_NODE_WRITING = 204,     //!< awaiting to write
+    TS_NODE_READ_WRITE = 205,  //!< awaiting both read and write
+    TS_NODE_ERROR = 206,       //!< unexpected error
+    TS_NODE_TIMEOUT = 207,     //!< something took too long
+  };
 
-    /// list of state edges
-    enum TcpEventSocketEdge_e
-    {
-        TS_EDGE_IP_GIVEN=200,      //!< obtained IP address
-        TS_EDGE_CONNECTED=201,     //!< obtained IP address
-        TS_EDGE_WRITE_WAIT=202,    //!< waiting on dns response
-        TS_EDGE_WRITABLE=203,      //!< waiting on dns response
-        TS_EDGE_ERROR=204,         //!< bad url given
-        TS_EDGE_TIMEOUT=205,       //!< something took too long
-        TS_EDGE_READ_WAIT=206,     //!< can write to connection
-        TS_EDGE_READABLE=207,      //!< data available on socket
-        TS_EDGE_CLOSE_REQUEST=208, //!< asking for socket close
-    };
+  /// list of state edges
+  enum TcpEventSocketEdge_e {
+    TS_EDGE_IP_GIVEN = 200,      //!< obtained IP address
+    TS_EDGE_CONNECTED = 201,     //!< obtained IP address
+    TS_EDGE_WRITE_WAIT = 202,    //!< waiting on dns response
+    TS_EDGE_WRITABLE = 203,      //!< waiting on dns response
+    TS_EDGE_ERROR = 204,         //!< bad url given
+    TS_EDGE_TIMEOUT = 205,       //!< something took too long
+    TS_EDGE_READ_WAIT = 206,     //!< can write to connection
+    TS_EDGE_READABLE = 207,      //!< data available on socket
+    TS_EDGE_CLOSE_REQUEST = 208, //!< asking for socket close
+  };
 
 protected:
-    unsigned m_NetIp;              //!< 0 or active IP address (for reporting)
-    unsigned short m_NetPort;      //!< 0 or active IP port (for reporting)
+  unsigned m_NetIp;         //!< 0 or active IP address (for reporting)
+  unsigned short m_NetPort; //!< 0 or active IP port (for reporting)
 
-    bool m_NoLinger;               //!< true to reset connection on close
+  bool m_NoLinger; //!< true to reset connection on close
 private:
-
-    /****************************************************************
-    *  Member functions
-    ****************************************************************/
+  /****************************************************************
+   *  Member functions
+   ****************************************************************/
 public:
+  TcpEventSocket();
 
-    TcpEventSocket();
+  virtual ~TcpEventSocket();
 
-    virtual ~TcpEventSocket();
+  /// connect by giving host ordered IP and port
+  bool ConnectHostOrder(MEventMgr *Manager, unsigned IpHostOrder,
+                        unsigned short PortHostOrder);
 
-    /// connect by giving host ordered IP and port
-    bool ConnectHostOrder(MEventMgr * Manager, unsigned IpHostOrder, unsigned short PortHostOrder);
+  /// connect by giving network ordered IP and port
+  bool ConnectNetOrder(MEventMgr *Manager, unsigned IpNetOrder,
+                       unsigned short PortNetOrder);
 
-    /// connect by giving network ordered IP and port
-    bool ConnectNetOrder(MEventMgr * Manager, unsigned IpNetOrder, unsigned short PortNetOrder);
+  /// set whether to force close or close socket normally
+  void SetNoLinger(bool Flag = true) { m_NoLinger = Flag; };
 
-    /// set whether to force close or close socket normally
-    void SetNoLinger(bool Flag=true) {m_NoLinger=Flag;};
+  bool SocketOption(int Option, bool Set = true);
 
-    bool SocketOption(int Option, bool Set=true);
+  /// debug
+  void Dump();
 
-    /// debug
-    void Dump();
+  //
+  // statemachine callbacks
+  //
+  //    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr &
+  //    Caller, bool PreNotify);
 
-    //
-    // statemachine callbacks
-    //
-    //    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr & Caller, bool PreNotify);
+  //
+  // Callbacks
+  //
 
-    //
-    // Callbacks
-    //
+  /// allows initialization by independent event thread where appropriate
+  virtual void ThreadInit(MEventMgrPtr &Mgr);
 
-    /// allows initialization by independent event thread where appropriate
-    virtual void ThreadInit(MEventMgrPtr & Mgr);
-
-    /// External callback used when time value expires
-    virtual void TimerCallback();
-
-
+  /// External callback used when time value expires
+  virtual void TimerCallback();
 
 protected:
-    /// internal routine for initiating tcp connect and setting state
-    void Connect();
+  /// internal routine for initiating tcp connect and setting state
+  void Connect();
 
-    virtual bool InitiateConnect(int & RetVal, int & Errno);
+  virtual bool InitiateConnect(int &RetVal, int &Errno);
 
-    /// internal routine to close socket
-    virtual void Close();
-
+  /// internal routine to close socket
+  virtual void Close();
 
 private:
-    TcpEventSocket(const TcpEventSocket & );             //!< disabled:  copy operator
-    TcpEventSocket & operator=(const TcpEventSocket &);  //!< disabled:  assignment operator
+  TcpEventSocket(const TcpEventSocket &); //!< disabled:  copy operator
+  TcpEventSocket &
+  operator=(const TcpEventSocket &); //!< disabled:  assignment operator
 
-};  // TcpEventSocket
-
+}; // TcpEventSocket
 
 #endif // ifndef TCP_EVENT_H

@@ -7,13 +7,12 @@
  * @brief Implementation of a socket based request/response protocol machine
  */
 
-#include <errno.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
-#include "request_response.h"
 #include "meventmgr.h"
+#include "request_response.h"
 #include "util/logging.h"
-
 
 /**
  * Initialize the data members.
@@ -21,55 +20,45 @@
  * @author matthewv
  */
 RequestResponse::RequestResponse(
-    unsigned IpHostOrder,                //!< zero or host order ip address
-    unsigned PortHostOrder)              //!< zero or host order tcp port
-    : m_ReqNotifyLock(false)
-{
-    m_NetIp=htonl(IpHostOrder);
-    m_NetPort=htons(PortHostOrder);
+    unsigned IpHostOrder,   //!< zero or host order ip address
+    unsigned PortHostOrder) //!< zero or host order tcp port
+    : m_ReqNotifyLock(false) {
+  m_NetIp = htonl(IpHostOrder);
+  m_NetPort = htons(PortHostOrder);
 
-    return;
+  return;
 
-}   // RequestResponse::RequestResponse
-
+} // RequestResponse::RequestResponse
 
 /**
  * Release resources
  * @date 06/08/11  matthewv  Created
  * @author matthewv
  */
-RequestResponse::~RequestResponse()
-{
-
-}   // RequestResponse::~RequestResponse
-
+RequestResponse::~RequestResponse() {} // RequestResponse::~RequestResponse
 
 /**
  * Add a new request to the fifo
  * @date Created 06/08/11
  * @author matthewv
  */
-void
-RequestResponse::AddRequest(
-    RequestResponseBufPtr & Buffer) //!< buffer contain request (and to receive response)
+void RequestResponse::AddRequest(
+    RequestResponseBufPtr
+        &Buffer) //!< buffer contain request (and to receive response)
 {
-    // validate inputs
-    if (NULL!=Buffer.get())
-    {
-        // put it on queue, then try to start it
-        m_ReqQueue.push(Buffer);
-        ProcessNextRequest();
-    }   // if
-    else
-    {
-        Logging(LOG_ERR, "%s:  null Buffer passed.",
-                __func__);
-    }   // else
+  // validate inputs
+  if (NULL != Buffer.get()) {
+    // put it on queue, then try to start it
+    m_ReqQueue.push(Buffer);
+    ProcessNextRequest();
+  } // if
+  else {
+    Logging(LOG_ERR, "%s:  null Buffer passed.", __func__);
+  } // else
 
-    return;
+  return;
 
-}   // RequestResponse::AddRequest
-
+} // RequestResponse::AddRequest
 
 /**
  * First step in asynchronous connection.
@@ -77,32 +66,25 @@ RequestResponse::AddRequest(
  *  contains all needed code.
  * @date 06/08/11  matthewv  Created
  */
-void
-RequestResponse::ThreadInit(
-    MEventMgrPtr & Mgr)
-{
-    // TcpEventSocket contains code to start the socket if
-    //  the ip and port are already set
-    TcpEventSocket::ThreadInit(Mgr);
+void RequestResponse::ThreadInit(MEventMgrPtr &Mgr) {
+  // TcpEventSocket contains code to start the socket if
+  //  the ip and port are already set
+  TcpEventSocket::ThreadInit(Mgr);
 
-    return;
+  return;
 
-}   // RequestResponse::ThreadInit
-
+} // RequestResponse::ThreadInit
 
 /**
  * A read or write request took too long, or inactive too long
  * @date Created 06/08/11
  * @author matthewv
  */
-void
-RequestResponse::TimerCallback()
-{
+void RequestResponse::TimerCallback() {
 
-    TcpEventSocket::TimerCallback();
+  TcpEventSocket::TimerCallback();
 
-}   // RequestResponse::TimerCallback
-
+} // RequestResponse::TimerCallback
 
 /**
  * event logic saw an error on the file descriptor
@@ -110,17 +92,14 @@ RequestResponse::TimerCallback()
  * @author matthewv
  * @returns true if simultaneous Read/Write callbacks should proceed
  */
-bool
-RequestResponse::ErrorCallback()
-{
-    bool ret_flag;
+bool RequestResponse::ErrorCallback() {
+  bool ret_flag;
 
-    ret_flag=TcpEventSocket::ErrorCallback();
+  ret_flag = TcpEventSocket::ErrorCallback();
 
-    return(ret_flag);
+  return (ret_flag);
 
-}   // RequestResponse::ErrorCallback
-
+} // RequestResponse::ErrorCallback
 
 /**
  * @brief Turn edge notifications into State changes
@@ -204,87 +183,73 @@ RequestResponse::EdgeNotification(
  * @date Created 06/08/11
  * @author matthewv
  */
-void
-RequestResponse::ProcessNextRequest()
-{
-    // if something is on queue and socket in desired state
-    //  start the request
-    if (NULL==m_CurRequest.get() && 0!=m_ReqQueue.size())
-    {
-        if (TcpEventSocket::TS_NODE_ESTABLISHED==GetState())
-        {
-            // get next buffer object
-            m_CurRequest=m_ReqQueue.front();
-            m_ReqQueue.pop();
+void RequestResponse::ProcessNextRequest() {
+  // if something is on queue and socket in desired state
+  //  start the request
+  if (NULL == m_CurRequest.get() && 0 != m_ReqQueue.size()) {
+    if (TcpEventSocket::TS_NODE_ESTABLISHED == GetState()) {
+      // get next buffer object
+      m_CurRequest = m_ReqQueue.front();
+      m_ReqQueue.pop();
 
-            // setup write ... and write
-            m_WriteBuf=m_CurRequest.get();
-            WriteAvailCallback();
-	}   // if
-        else
-	{
-            Connect();
-	}  // else
-    }   // if
+      // setup write ... and write
+      m_WriteBuf = m_CurRequest.get();
+      WriteAvailCallback();
+    } // if
+    else {
+      Connect();
+    } // else
+  }   // if
 
-    return;
+  return;
 
-}   // RequestResponse::ProcessNextRequest
-
+} // RequestResponse::ProcessNextRequest
 
 /**
  * Collect the response the request just sent
  * @date Created 06/08/11
  * @author matthewv
  */
-void
-RequestResponse::ProcessCurrentResponse()
-{
-    // if something is on queue and socket in desired state
-    //  start the request
-    if (NULL!=m_CurRequest.get())
-    {
-        // setup read
-        m_ReadBuf=m_CurRequest.get();
-        ReadAvailCallback();
-    }   // if
+void RequestResponse::ProcessCurrentResponse() {
+  // if something is on queue and socket in desired state
+  //  start the request
+  if (NULL != m_CurRequest.get()) {
+    // setup read
+    m_ReadBuf = m_CurRequest.get();
+    ReadAvailCallback();
+  } // if
 
-    return;
+  return;
 
-}   // RequestResponse::ProcessCurrentResponse
-
+} // RequestResponse::ProcessCurrentResponse
 
 /**
  * Notify completion list in proper order
  * @date Created 06/10/11
  * @author matthewv
  */
-void
-RequestResponse::ProcessRequestNotifications()
-{
-    // due to the nature of mevent, it is quit possible
-    //  to reach this function in a recursive manner.
-    //  This simple lock keeps the processing at the "parent"
-    //  stack level, assuring that each request is fully
-    //  notified before a subsequent one
-    if (!m_ReqNotifyLock)
-    {
-        RequestResponseBufPtr buf;
+void RequestResponse::ProcessRequestNotifications() {
+  // due to the nature of mevent, it is quit possible
+  //  to reach this function in a recursive manner.
+  //  This simple lock keeps the processing at the "parent"
+  //  stack level, assuring that each request is fully
+  //  notified before a subsequent one
+  if (!m_ReqNotifyLock) {
+    RequestResponseBufPtr buf;
 
-        m_ReqNotifyLock=true;
+    m_ReqNotifyLock = true;
 
-        while (0!=m_ReqNotify.size())
-        {
+    while (0 != m_ReqNotify.size()) {
 
-            buf=m_ReqNotify.front();
-            m_ReqNotify.pop();
+      buf = m_ReqNotify.front();
+      m_ReqNotify.pop();
 
-            buf->SendCompletion(RW_EDGE_RECEIVED);
-        }   // if
+      buf->SendCompletion(RW_EDGE_RECEIVED);
+    } // if
 
-        m_ReqNotifyLock=false;
-    }   // if
+    m_ReqNotifyLock = false;
+  } // if
 
-    return;
+  return;
 
-}   // RequestResponse::ProcessRequestNotifications
+} // RequestResponse::ProcessRequestNotifications

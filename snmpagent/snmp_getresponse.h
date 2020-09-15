@@ -4,7 +4,8 @@
  * @date July 10, 2011
  * @date Copyright 2011
  *
- * @brief Declarations for snmp agentX response pdu object (rfc 2741, January 2000)
+ * @brief Declarations for snmp agentX response pdu object (rfc 2741, January
+ * 2000)
  */
 
 #ifndef SNMP_GETRESPONSEPDU_H
@@ -20,32 +21,28 @@ typedef std::shared_ptr<class GetResponsePDU> GetResponsePDUPtr;
  * Buffer for sending agentx-GetResponse-PDU packet
  * @date created 10/02/11
  */
-class GetResponsePDU : public ResponsePDU
-{
-    /****************************************************************
-    *  Member objects
-    ****************************************************************/
+class GetResponsePDU : public ResponsePDU {
+  /****************************************************************
+   *  Member objects
+   ****************************************************************/
 public:
-
 protected:
-    int m_PendingData;         //!< count of pending data items
+  int m_PendingData; //!< count of pending data items
 
 private:
-
-    /****************************************************************
-    *  Member functions
-    ****************************************************************/
+  /****************************************************************
+   *  Member functions
+   ****************************************************************/
 public:
-    //
-    // standard interface for ReaderWriterBuf
-    //
+  //
+  // standard interface for ReaderWriterBuf
+  //
 
-    GetResponsePDU(class SnmpAgent & Agent, PduInboundBufPtr & Request);
+  GetResponsePDU(class SnmpAgent &Agent, PduInboundBufPtr &Request);
 
-    virtual ~GetResponsePDU();
+  virtual ~GetResponsePDU();
 
-
-    /// Public routine to receive Edge notification
+  /// Public routine to receive Edge notification
 #if 0
     virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr & Caller, bool PreNotify)
     {
@@ -68,21 +65,19 @@ public:
         return(ret_flag);
     };
 #endif
-    //
-    // custom routines
-    //
+  //
+  // custom routines
+  //
 
-    // debug
-    void Dump();
+  // debug
+  void Dump();
 
 protected:
-
 private:
-    GetResponsePDU();                             //!< disabled:  default constructor
-    GetResponsePDU(const GetResponsePDU & );             //!< disabled:  copy operator
-    GetResponsePDU & operator=(const GetResponsePDU &);  //!< disabled:  assignment operator
-};  // class GetResponsePDU
-
-
+  GetResponsePDU();                       //!< disabled:  default constructor
+  GetResponsePDU(const GetResponsePDU &); //!< disabled:  copy operator
+  GetResponsePDU &
+  operator=(const GetResponsePDU &); //!< disabled:  assignment operator
+};                                   // class GetResponsePDU
 
 #endif // ifndef SNMP_RESPONSEPDU_H

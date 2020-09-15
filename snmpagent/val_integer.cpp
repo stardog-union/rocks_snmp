@@ -8,15 +8,12 @@
  */
 
 #ifndef VAL_INTEGER_H
-    #include "val_integer.h"
+#include "val_integer.h"
 #endif
 
-
-struct VarBindHeader gVarInteger={eInteger,0};
-struct VarBindHeader gVarCounter32={eCounter32,0};
-struct VarBindHeader gVarGauge32={eGauge32,0};
-
-
+struct VarBindHeader gVarInteger = {eInteger, 0};
+struct VarBindHeader gVarCounter32 = {eCounter32, 0};
+struct VarBindHeader gVarGauge32 = {eGauge32, 0};
 
 /**
  * Initialize the data members.
