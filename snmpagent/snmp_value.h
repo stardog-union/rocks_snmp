@@ -133,12 +133,8 @@ public:
   /// append this variable to output stream
   virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const = 0;
 
-  bool operator<(const SnmpValInf &rhs) const {
-    bool ret_flag={false};
-    ret_flag =  (m_Oid < rhs.m_Oid);
-  SnmpDump(); rhs.SnmpDump(); printf(" == %s\n", ret_flag ? "true" : "false");
+  bool operator<(const SnmpValInf &rhs) const {return m_Oid < rhs.m_Oid;}
 
-    return ret_flag;}
 
   /// debug support, convert value to string for output
   virtual std::string &GetValueAsString(std::string &Output) = 0;
@@ -174,9 +170,7 @@ private:
 class SnmpValPtrCompare {
 public:
   bool operator()(const SnmpValInfPtr &P1, const SnmpValInfPtr &P2) const {
-    return P1->operator<(*P2);
-
-
+    return *P1 < *P2;
   };
 }; // SnmpValPtrCompare
 

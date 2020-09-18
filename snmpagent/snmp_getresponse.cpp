@@ -83,7 +83,7 @@ GetResponsePDU::GetResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request)
 
   // establish overall response size info
   SetWriteEnd();
-  Dump();
+
   return;
 
 } // GetResponsePDU::GetResponsePDU

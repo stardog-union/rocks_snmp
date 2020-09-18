@@ -2,3 +2,5 @@
 _linux64
 *.d
 *.o
+*.e
+rocksdb

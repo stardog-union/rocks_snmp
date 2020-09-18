@@ -37,12 +37,11 @@ MEventMgr gEventMgr;
  *                         .x instance id
  */
 
-static unsigned sAgentPrefix[]={1,3,6,1,4,1,38693,5};
+// .1.3.6.1.4 is implied in communications
+static unsigned sAgentPrefix[]={1,38693,5};
 static SnmpAgent::SnmpAgentId sAgentId={sAgentPrefix, sizeof(sAgentPrefix)/sizeof(sAgentPrefix[0]),
-                               "RiakMonitor"};
+                               "RocksMonitor"};
 
-//static const unsigned sDiskTable[]={1,1};
-//static SnmpOid sDiskTableId={sDiskTable, sizeof(sDiskTable)/sizeof(sDiskTable[0])};
 
 /**
  * Start a statistics event loop that snmpd can reach

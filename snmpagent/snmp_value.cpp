@@ -95,12 +95,9 @@ SnmpValInf::SnmpValInf(unsigned Suffix) : m_PrefixSet(false) {
  * @author matthewv
  */
 void SnmpValInf::Init() {
-  // default usage is a variable is within another object,
-  //   RefPtr() should not auto delete
-  //    MarkNotHeap();
 
   // default is static / direct access variable, not lookups
-  // SetState(SNMP_NODE_DATAGOOD);
+  SetState(SNMP_NODE_DATAGOOD);
 
   return;
 } // SnmpValInf::Init
@@ -194,7 +191,7 @@ bool SnmpValInf::IsDataReady(
 {
   bool ret_flag;
 
-  ret_flag = (true /*SNMP_NODE_DATAGOOD==GetState()*/);
+  ret_flag = (SNMP_NODE_DATAGOOD==GetState());
 
   // someone wants data, ask for update
   if (!ret_flag)
