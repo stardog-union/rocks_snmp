@@ -109,22 +109,6 @@ private:
 
 typedef std::shared_ptr<class SnmpValUnsigned64> SnmpValUnsigned64Ptr;
 
-class SnmpValStaticUnsigned64
-    : /*public StartupListObject,*/ public SnmpValUnsigned64 {
-public:
-  SnmpValStaticUnsigned64(/*StartupListObject ** RootPointer,*/ SnmpOid &Oid,
-                          VarBindHeader &UnsignedType)
-      : /*StartupListObject(RootPointer),*/ SnmpValUnsigned64(Oid,
-                                                              UnsignedType){};
-
-private:
-  SnmpValStaticUnsigned64(); //!< disabled:  default constructor
-  SnmpValStaticUnsigned64(
-      const SnmpValStaticUnsigned64 &); //!< disabled:  copy operator
-  SnmpValStaticUnsigned64 &operator=(
-      const SnmpValStaticUnsigned64 &); //!< disabled:  assignment operator
-
-}; // SnmpValStaticUnsigned64
 
 class SnmpValCounter64 : public SnmpValUnsigned64 {
 public:
@@ -166,7 +150,7 @@ public:
       m_Unsigned64Ptr = &m_Unsigned64;
   };
 
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const {
+  void AppendToIovec(std::vector<struct iovec> &IoArray) const override {
     SnmpValUnsigned64::AppendToIovec(IoArray);
     struct iovec builder;
 

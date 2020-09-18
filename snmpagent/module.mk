@@ -71,8 +71,8 @@ $M/BUILD_ARCS := libsnmpagent
 $M/BUILD_DLLS :=
 
 ifeq ($(filter debug,$(MAKECMDGOALS)),debug)
-$M/BUILD_SRCS += $($M/BUILD_SRCS_TEST)
-$M/TEST_BINS  := unittest
+##$M/BUILD_SRCS += $($M/BUILD_SRCS_TEST)
+##$M/TEST_BINS  := unittest
 endif
 
 ######
@@ -128,5 +128,3 @@ $(ML)/libsnmpagent.$A: $(call GET_DEPS2,$M/BUILD_SRCS_LIB)
 $(MB)/unittest.$B: $(call GET_DEPS2,$M/BUILD_SRCS_TEST)
 
 endif
-
-

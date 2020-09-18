@@ -44,7 +44,7 @@ public:
   // standard interface for ReaderWriterBuf
   //
 
-  ResponsePDU(class SnmpAgent &Agent, PduInboundBufPtr &Request);
+  ResponsePDU(PduInboundBufPtr &Request);
 
   virtual ~ResponsePDU();
 

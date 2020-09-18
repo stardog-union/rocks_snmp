@@ -340,7 +340,7 @@ bool SnmpAgent::ProcessResponsePdu() {
       ReaderWriterBufPtr ptr;
 
       ret_flag = true;
-      // SetState(SA_NODE_OPENED);
+      SetState(SA_NODE_OPENED);
 
       // this is huge.  Must save and return on every other packet we generate
       m_SessionId = m_InboundPtr->GetHeader().m_SessionID;
@@ -436,8 +436,8 @@ bool SnmpAgent::GetVariables(
     const PduSubId &StartId, //!< start of lookup range
     const PduSubId &EndId,   //!< end of lookup range (or zero subid count)
     bool GetNext,            //!< start/end from a GetNext request
-    unsigned short &Error)   //!< [output] type of lookup error
-//    StateMachine & Notify)                  //!< if data delayed, notify
+    unsigned short &Error,   //!< [output] type of lookup error
+    StateMachinePtr & Notify)                  //!< if data delayed, notify
 //    completion
 {
   bool send_now;
@@ -451,8 +451,7 @@ bool SnmpAgent::GetVariables(
   oid.m_Oid = (unsigned *)(&StartId + 1);
   oid.m_OidLen = StartId.m_SubIdLen;
 
-  SnmpValLookup lookup(oid);
-  SnmpValInfPtr lookup_ptr(&lookup);
+  SnmpValInfPtr lookup_ptr = std::make_shared<SnmpValLookup>(oid);
 
   if (!GetNext) {
     it = m_OidSet.find(lookup_ptr);
@@ -460,7 +459,7 @@ bool SnmpAgent::GetVariables(
     if (m_OidSet.end() != it) {
       (*it)->AppendToIovec(ResponseVec);
       ptr = *it; // un const
-                 //            send_now=send_now && ptr->IsDataReady(&Notify);
+      send_now=send_now && ptr->IsDataReady(Notify);
     }            // if
     else {
       // push VarBindHeader with eNoSuchObject
@@ -473,7 +472,7 @@ bool SnmpAgent::GetVariables(
     if (m_OidSet.end() != it) {
       (*it)->AppendToIovec(ResponseVec);
       ptr = *it; // un const
-                 // send_now=send_now && ptr->IsDataReady(&Notify);
+      send_now=send_now && ptr->IsDataReady(Notify);
     }            // if
     else {
       // push VarBindHeader with eEndOfMibView

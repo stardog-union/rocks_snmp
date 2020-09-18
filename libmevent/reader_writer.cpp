@@ -369,7 +369,7 @@ bool ReaderWriter::EdgeNotification(
     default:
       // send down a level.  If not used then it is an error
       used = MEventObj::EdgeNotification(EdgeId, Caller, PreNotify);
-      if (!used) {
+      if (!used && RW_EDGE_FIRST < EdgeId && RW_EDGE_LAST > EdgeId) {
         Logging(LOG_ERR, "%s: unknown edge value passed [EdgeId=%u]",
                 __PRETTY_FUNCTION__, EdgeId);
         SendEdge(RW_EDGE_ERROR);

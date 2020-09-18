@@ -81,15 +81,18 @@ public:
 
   /// list of state edges
   enum TcpEventSocketEdge_e {
-    TS_EDGE_IP_GIVEN = 200,      //!< obtained IP address
-    TS_EDGE_CONNECTED = 201,     //!< obtained IP address
-    TS_EDGE_WRITE_WAIT = 202,    //!< waiting on dns response
-    TS_EDGE_WRITABLE = 203,      //!< waiting on dns response
-    TS_EDGE_ERROR = 204,         //!< bad url given
-    TS_EDGE_TIMEOUT = 205,       //!< something took too long
-    TS_EDGE_READ_WAIT = 206,     //!< can write to connection
-    TS_EDGE_READABLE = 207,      //!< data available on socket
-    TS_EDGE_CLOSE_REQUEST = 208, //!< asking for socket close
+    TS_EDGE_FIRST = 200,
+    TS_EDGE_IP_GIVEN = 201,      //!< obtained IP address
+    TS_EDGE_CONNECTED = 202,     //!< obtained IP address
+    TS_EDGE_WRITE_WAIT = 203,    //!< waiting on dns response
+    TS_EDGE_WRITABLE = 204,      //!< waiting on dns response
+    TS_EDGE_ERROR = 205,         //!< bad url given
+    TS_EDGE_TIMEOUT = 206,       //!< something took too long
+    TS_EDGE_READ_WAIT = 207,     //!< can write to connection
+    TS_EDGE_READABLE = 208,      //!< data available on socket
+    TS_EDGE_CLOSE_REQUEST = 209, //!< asking for socket close
+
+    TS_EDGE_LAST = 210
   };
 
 protected:
@@ -125,8 +128,8 @@ public:
   //
   // statemachine callbacks
   //
-  //    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr &
-  //    Caller, bool PreNotify);
+  bool EdgeNotification(unsigned int EdgeId, StateMachinePtr &
+                                Caller, bool PreNotify) override;
 
   //
   // Callbacks

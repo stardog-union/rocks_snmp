@@ -78,6 +78,7 @@ public:
 
   /// list of state edges
   enum ReaderWriterEdge_e {
+    RW_EDGE_FIRST = 100,
     RW_EDGE_FD_ASSIGNED = 101, //!< an open file descriptor is available
     RW_EDGE_ERROR = 102,       //!< error on fd (or other logic)
     RW_EDGE_TIMEOUT = 103,     //!< something took too long
@@ -97,6 +98,8 @@ public:
     RW_EDGE_CLOSED = RW_EDGE_CLOSE,
     RW_EDGE_SENT = RW_EDGE_WRITE_DONE,
     RW_EDGE_WRITABLE = RW_EDGE_WRITEABLE,
+
+    RW_EDGE_LAST = 113 // mark end of numeric range
   };
 
 protected:

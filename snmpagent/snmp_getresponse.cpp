@@ -24,10 +24,10 @@
  * @author matthewv
  */
 GetResponsePDU::GetResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request)
-    : ResponsePDU(Agent, Request), m_PendingData(0) {
+    : ResponsePDU(Request), m_PendingData(0) {
   // only initialize / read data if lower levels happy
   if (eNoAgentXError == m_Response.m_Error) {
-    bool send_now, flag;
+    bool send_now, flag = {false};
     int count;
     const char *ptr, *limit;
     const PduSubId *id_start, *id_end;
@@ -51,9 +51,13 @@ GetResponsePDU::GetResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request)
 
       // add variable to output
       error = 0;
+
+      // hmmm ... self/weak pointer not set at this point in constructor
+      StateMachinePtr shared; // pointer not yet set ... = GetStateMachinePtr();
       flag = Agent.GetVariables(m_ResponsePDUVec, *id_start, *id_end,
                                 eGetNextPDU == Request->GetHeader().m_Type,
-                                error /*, *this*/);
+                                error, shared);
+
       // if data is asynchronous, await notification on all
       //   (GetVariables added completion call)
       if (!flag)
@@ -63,9 +67,11 @@ GetResponsePDU::GetResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request)
       m_Response.m_Error = error;
     } // while
 
-    //        SetDataReady(send_now);
-    // if (!send_now)
-    //  AddCompletion(Agent);
+    SetDataReady(send_now);
+    if (!send_now) {
+      StateMachinePtr shared = Agent.GetStateMachinePtr();
+      AddCompletion(shared);
+    }
 
 #if 0
         if (!good)
@@ -77,7 +83,7 @@ GetResponsePDU::GetResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request)
 
   // establish overall response size info
   SetWriteEnd();
-
+  Dump();
   return;
 
 } // GetResponsePDU::GetResponsePDU

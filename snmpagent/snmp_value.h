@@ -17,9 +17,8 @@
 
 #include "util/logging.h"
 
-//#include "startup_list.h"
-
 #include "snmp_pdu.h"
+#include "statemachine.h"
 
 /**
  * AgentX PDU type codes
@@ -68,7 +67,7 @@ typedef std::shared_ptr<class SnmpValInf> SnmpValInfPtr;
  * Interface for an SNMP Variable (absolute base class)
  * @date created 08/31/11
  */
-class SnmpValInf // : public StateMachine
+class SnmpValInf : public StateMachine
 {
 public:
   /// list of state nodes
@@ -93,8 +92,6 @@ public:
    *************************************************************/
 public:
 protected:
-  SnmpValInf *m_StaticNext; //!< pointer to next static
-                            //!<   defined snmp variable
   PduSubId m_SubId;         //!< subid for response
   OidVector_t m_Oid;        //!< oid suffix for this var
   bool m_PrefixSet;         //!< InsertPrefix() has been called
@@ -114,6 +111,10 @@ public:
   /// initialization common to all constructors
   void Init();
 
+  std::shared_ptr<SnmpValInf> GetSnmpValInfPtr() {
+    return std::static_pointer_cast<SnmpValInf>(GetStateMachinePtr());
+  }
+
   /// default construtor used, set suffix now
   void SetSuffix(const SnmpOid &Suffix);
 
@@ -132,7 +133,12 @@ public:
   /// append this variable to output stream
   virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const = 0;
 
-  bool operator<(const SnmpValInf &rhs) const { return (m_Oid < rhs.m_Oid); };
+  bool operator<(const SnmpValInf &rhs) const {
+    bool ret_flag={false};
+    ret_flag =  (m_Oid < rhs.m_Oid);
+  SnmpDump(); rhs.SnmpDump(); printf(" == %s\n", ret_flag ? "true" : "false");
+
+    return ret_flag;}
 
   /// debug support, convert value to string for output
   virtual std::string &GetValueAsString(std::string &Output) = 0;
@@ -145,7 +151,7 @@ public:
   //
 
   /// used to pause reply while fresh data fetched in specialized values
-  virtual bool IsDataReady(class StateMachine *Notify);
+  virtual bool IsDataReady(StateMachinePtr & Notify);
 
   /// Public routine to receive Edge notification
   //    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr &
@@ -164,21 +170,13 @@ private:
 
 }; // class SnmpValInf
 
-/**
- * Comparison function for building stl containers
- * @date created 08/31/11
- */
-class SnmpValCompare {
-public:
-  bool operator()(const SnmpValInf *P1, const SnmpValInf *P2) const {
-    return ((*P1) < (*P2));
-  };
-}; // SnmpValCompare
 
 class SnmpValPtrCompare {
 public:
   bool operator()(const SnmpValInfPtr &P1, const SnmpValInfPtr &P2) const {
-    return (*(&P1) < *(&P2));
+    return P1->operator<(*P2);
+
+
   };
 }; // SnmpValPtrCompare
 
@@ -186,21 +184,9 @@ public:
  * "Clean" set of snmp variables without concern for storage method
  * @date Created 10/01/11
  */
-// typedef std::set<SnmpValInf *, SnmpValCompare> SnmpValSet_t;
 
 typedef std::set<SnmpValInfPtr, SnmpValPtrCompare> SnmpValPtrSet_t;
 
-/** NOTE: this is a template for generic pointers:  neither used nor a derived
- * base. **/
-class SnmpValStatic : /*public StartupListObject,*/ public SnmpValInf {
-public:
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) { return; };
-
-}; // SnmpValStatic
-
-// class SnmpValXXHeap : public RefObj, public SnmpValXX
-
-// class SnmpValXX : public SnmpValInf
 
 /**
  * Class used solely in searching internal SnmpValInf sets

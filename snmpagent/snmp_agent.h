@@ -189,8 +189,8 @@ public:
   /// look up values and add to output vector
   bool GetVariables(std::vector<struct iovec> &ResponseVec,
                     const PduSubId &StartId, const PduSubId &EndId,
-                    bool GetNext, unsigned short &Error);
-  // StateMachine & Notify);
+                    bool GetNext, unsigned short &Error,
+                    StateMachinePtr & Notify);
 
 protected:
   /// advance state machine, send snmp open pdu

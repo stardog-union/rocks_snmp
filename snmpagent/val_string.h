@@ -30,9 +30,11 @@ public:
 
   SnmpValString(const OidVector_t &Oid) : SnmpValInf(Oid), m_Length(0){};
 
+SnmpValString(unsigned Oid) : SnmpValInf(Oid), m_Length(0){};
+
   virtual ~SnmpValString(){};
 
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const {
+  void AppendToIovec(std::vector<struct iovec> &IoArray) const override {
     struct iovec builder;
     int padding;
 
@@ -106,19 +108,5 @@ private:
 }; // SnmpValString
 
 typedef std::shared_ptr<class SnmpValString> SnmpValStringPtr;
-
-class SnmpValStaticString : /*public StartupListObject,*/ public SnmpValString {
-public:
-  SnmpValStaticString(/*StartupListObject ** RootPointer,*/ SnmpOid &Oid)
-      : /*StartupListObject(RootPointer),*/ SnmpValString(Oid){};
-
-private:
-  SnmpValStaticString(); //!< disabled:  default constructor
-  SnmpValStaticString(
-      const SnmpValStaticString &); //!< disabled:  copy operator
-  SnmpValStaticString &
-  operator=(const SnmpValStaticString &); //!< disabled:  assignment operator
-
-}; // SnmpValStaticString
 
 #endif // ifndef VAL_STRING_H

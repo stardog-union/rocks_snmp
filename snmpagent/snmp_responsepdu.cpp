@@ -23,7 +23,7 @@
  * @date Created 10/02/11
  * @author matthewv
  */
-ResponsePDU::ResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request)
+ResponsePDU::ResponsePDU(PduInboundBufPtr &Request)
     : m_ResponsePDUSent(0), m_WriteEnd(0) {
   struct iovec builder;
 

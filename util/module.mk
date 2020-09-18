@@ -19,8 +19,8 @@ all: build
 ######
 
 $M/INC_PATH_PUBLISHED := .
-$M/ARCS_PUBLISHED     := libmevent
-$M/BINS_PUBLISHED     :=
+$M/ARCS_PUBLISHED     :=
+$M/BINS_PUBLISHED     := stats_test
 $M/A_ROOT_MODULE      := 1
 
 ######
@@ -29,8 +29,11 @@ $M/A_ROOT_MODULE      := 1
 #      specific lib file names)
 ######
 
-$M/MODULES_NEEDED   :=
-$M/LIBRARIES_NEEDED :=
+#$M/MODULES_NEEDED   := snmpagent rocksdb libmevent
+#$M/LIBRARIES_NEEDED := libsnmpagent librocksdb libmevent
+
+$M/MODULES_NEEDED   :=  libmevent snmpagent rocksdb
+$M/LIBRARIES_NEEDED :=  libmevent libsnmpagent librocksdb
 
 ifeq ($(filter debug,$(MAKECMDGOALS)),debug)
 $M/MODULES_NEEDED   +=
@@ -59,23 +62,20 @@ $M/INC_SEARCH :=
 #      respectively.  *_PUBLISHED from above automatically
 #      added. (BUILD_SRCS only used for Linux dependency generation)
 ######
-$M/BUILD_SRCS_LIB := meventmgr.cpp meventobj.cpp \
-                     reader_writer.cpp statemachine.cpp \
-                     tcp_event.cpp
+$M/BUILD_SRCS_LIB := logging.cpp stats_table.cpp stats_test.cpp
 
 #request_response.cpp request_response_buf.cpp \
 
-$M/BUILD_SRCS_TEST := mevent_unit.cpp \
-                      request_response_unit.cpp tcp_event_unit.cpp
+$M/BUILD_SRCS_TEST :=
 
 $M/BUILD_SRCS := $($M/BUILD_SRCS_LIB)
-$M/BUILD_BINS :=
-$M/BUILD_ARCS := libmevent
+$M/BUILD_BINS := stats_test
+$M/BUILD_ARCS :=
 $M/BUILD_DLLS :=
 
 ifeq ($(filter debug,$(MAKECMDGOALS)),debug)
-##$M/BUILD_SRCS += $($M/BUILD_SRCS_TEST)
-##$M/TEST_BINS  := unittest
+$M/BUILD_SRCS += $($M/BUILD_SRCS_TEST)
+$M/TEST_BINS  := unittest
 endif
 
 ######
@@ -92,7 +92,7 @@ MK_NO_WINDOWS := 1
 #      functions and rules to build based upon data above.
 ######
 ifeq ($P,)
-%.mk: %.mk.in ; cd $(@D);configure
+#%.mk: %.mk.in ; cd $(@D);configure
 endif
 
 include ../util/basemake.mk
@@ -124,10 +124,8 @@ $M/CPPFLAGS +=
 $M/CXXFLAGS +=
 $M/LDFLAGS  +=
 $M/LDLIBS   +=
-GLDLIBS += -lrt
+#GLDLIBS += -lrt
 
-$(ML)/libmevent.$A: $(call GET_DEPS2,$M/BUILD_SRCS_LIB)
-
-$(MB)/unittest.$B: $(call GET_DEPS2,$M/BUILD_SRCS_TEST)
+$(MB)/stats_test.$B: $(call GET_DEPS2,$M/BUILD_SRCS_LIB)
 
 endif

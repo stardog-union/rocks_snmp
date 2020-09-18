@@ -307,7 +307,6 @@ bool TcpEventSocket::SocketOption(int Option, bool Set) {
  * @author matthewv
  * @returns  true if edge handled to state transition
  */
-#if 0
 bool
 TcpEventSocket::EdgeNotification(
     unsigned int EdgeId,               //!< what just happened, what graph edge are we walking
@@ -324,12 +323,12 @@ TcpEventSocket::EdgeNotification(
         switch(EdgeId)
         {
             case TS_EDGE_IP_GIVEN:
-	      //                Connect();
+                Connect();
                 used=true;
                 break;
 
             case TS_EDGE_CONNECTED:
-             SetState(TS_NODE_ESTABLISHED);
+              SetState(TS_NODE_ESTABLISHED);
                 used=true;
                 break;
 
@@ -383,7 +382,7 @@ TcpEventSocket::EdgeNotification(
             default:
                 // send down a level.  If not used then it is an error
                 used=ReaderWriter::EdgeNotification(EdgeId, Caller, PreNotify);
-                if (!used)
+                if (!used && TS_EDGE_FIRST < EdgeId && TS_EDGE_LAST > EdgeId)
                 {
                     Logging(LOG_ERR, "%s: unknown edge value passed [EdgeId=%u]",
                             __PRETTY_FUNCTION__, EdgeId);
@@ -401,4 +400,3 @@ TcpEventSocket::EdgeNotification(
     return(used);
 
 }   // TcpEventSocket::EdgeNotifications
-#endif

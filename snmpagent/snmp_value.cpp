@@ -190,23 +190,22 @@ void SnmpValInf::InsertTablePrefix(
  * @author matthewv
  */
 bool SnmpValInf::IsDataReady(
-    class StateMachine
-        *Notify) //!< a potentially transient object to notify later
+    StateMachinePtr & Notify) //!< a potentially transient object to notify later
 {
   bool ret_flag;
 
   ret_flag = (true /*SNMP_NODE_DATAGOOD==GetState()*/);
 
   // someone wants data, ask for update
-  //    if (!ret_flag)
-  //  SendCompletion(SNMP_EDGE_REQUEST_DATA);
+  if (!ret_flag)
+    SendCompletion(SNMP_EDGE_REQUEST_DATA);
 
   // yes test again in case update happened synchronously
-  ret_flag = (true /*SNMP_NODE_DATAGOOD==GetState()*/);
+  ret_flag = (SNMP_NODE_DATAGOOD==GetState());
 
   // save Notify only if we owe them fresh data
-  //    if (!ret_flag && NULL!=Notify)
-  //  AddCompletion(*Notify);
+  if (!ret_flag && Notify)
+    AddCompletion(Notify);
 
   return (ret_flag);
 

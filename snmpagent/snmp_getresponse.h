@@ -38,13 +38,12 @@ public:
   // standard interface for ReaderWriterBuf
   //
 
-  GetResponsePDU(class SnmpAgent &Agent, PduInboundBufPtr &Request);
+  GetResponsePDU(SnmpAgent &Agent, PduInboundBufPtr &Request);
 
   virtual ~GetResponsePDU();
 
   /// Public routine to receive Edge notification
-#if 0
-    virtual bool EdgeNotification(unsigned int EdgeId, StateMachinePtr & Caller, bool PreNotify)
+  bool EdgeNotification(unsigned int EdgeId, StateMachinePtr & Caller, bool PreNotify) override
     {
         bool ret_flag;
 
@@ -64,7 +63,6 @@ public:
 
         return(ret_flag);
     };
-#endif
   //
   // custom routines
   //
