@@ -34,7 +34,7 @@ SnmpValString(unsigned Oid) : SnmpValInf(Oid), m_Length(0){};
 
   virtual ~SnmpValString(){};
 
-  void AppendToIovec(std::vector<struct iovec> &IoArray) const override {
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
     struct iovec builder;
     int padding;
 

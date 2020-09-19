@@ -36,7 +36,7 @@ public:
 
   SnmpAgent &GetSnmpAgent() { return (m_Agent); };
 
-  // virtual void AppendToIovec(std::vector<struct iovec> & IoArray);
+  // void AppendToIovec(std::vector<struct iovec> & IoArray) override;
 
   /// debug support, convert value to string for output
   // virtual std::string & GetValueAsString(std::string &Output);

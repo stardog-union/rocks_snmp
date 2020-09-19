@@ -10,10 +10,33 @@
 #ifndef STATS_TABLE_H
 #define STATS_TABLE_H
 
+#include "rocksdb/statistics.h"
+#include "meventmgr.h"
+#include "snmp_agent.h"
 #include "val_integer64.h"
 #include "val_string.h"
-#include "snmp_agent.h"
-#include "rocksdb/statistics.h"
+
+
+
+class SnmpValTicker : public SnmpValCounter64 {
+protected:
+
+  rocksdb::Tickers m_Ticker;
+  const std::shared_ptr<rocksdb::Statistics> m_Stats;
+
+public:
+  SnmpValTicker() = delete;
+SnmpValTicker(unsigned ID, rocksdb::Tickers Ticker, const std::shared_ptr<rocksdb::Statistics> Stats)
+    : SnmpValCounter64(ID), m_Ticker(Ticker), m_Stats(Stats) {}
+
+  virtual ~SnmpValTicker() {};
+
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
+    m_Unsigned64 = m_Stats->getTickerCount(m_Ticker);
+
+    SnmpValCounter64::AppendToIovec(IoArray);
+  }
+};// class SnmpValTicker
 
 
 class StatsTable
@@ -24,13 +47,8 @@ class StatsTable
 public:
 
 protected:
+  MEventMgr m_Mgr;
   SnmpAgentPtr m_Agent;          //!< snmp manager instance
-  OidVector_t m_TablePrefix;
-  const std::shared_ptr<rocksdb::Statistics> m_Stats;
-  const std::string m_TableName;
-
-    std::vector<rocksdb::Tickers> m_Tickers;
-    std::vector<uint64_t> m_Values;
 
 private:
 
@@ -38,10 +56,12 @@ private:
     *  Member functions
     ****************************************************************/
 public:
+  StatsTable();
 
-    StatsTable(SnmpAgentPtr & Agent, const std::shared_ptr<rocksdb::Statistics> & stats, unsigned TableId, const std::string & name);
+  virtual ~StatsTable();
 
-    virtual ~StatsTable() {};
+
+      bool AddTable(const std::shared_ptr<rocksdb::Statistics> & stats, unsigned TableId, const std::string & name);
 
     /// debug
     void Dump();
@@ -50,7 +70,6 @@ protected:
 
 
 private:
-    StatsTable();                             //!< disabled:  default constructor
     StatsTable(const StatsTable & );             //!< disabled:  copy operator
     StatsTable & operator=(const StatsTable &);  //!< disabled:  assignment operator
 

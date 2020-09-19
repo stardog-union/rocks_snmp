@@ -30,7 +30,7 @@ public:
 
   virtual ~SnmpValError(){};
 
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const {};
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {};
   virtual void AppendToIovec(const PduSubId &ValId,
                              std::vector<struct iovec> &IoArray) const;
 

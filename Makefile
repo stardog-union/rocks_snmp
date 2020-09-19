@@ -70,9 +70,6 @@ $M/BUILD_SRCS_SNMP := snmpagent/snmp_agent.cpp snmpagent/snmp_getresponse.cpp sn
 		     	snmpagent/val_error.cpp snmpagent/val_integer.cpp snmpagent/val_integer64.cpp \
 			snmpagent/val_string.cpp snmpagent/val_table.cpp
 
-
-#request_response.cpp request_response_buf.cpp \
-
 $M/BUILD_SRCS_TEST := stats_test.cpp
 
 $M/BUILD_SRCS := $($M/BUILD_SRCS_LIB) $($M/BUILD_SRCS_UTIL) $($M/BUILD_SRCS_EVENT) $($M/BUILD_SRCS_SNMP)
@@ -129,7 +126,7 @@ $M/CFLAGS   +=
 $M/CPPFLAGS +=
 $M/CXXFLAGS +=
 $M/LDFLAGS  +=
-$M/LDLIBS   +=
+$M/LDLIBS   += -Lrocksdb -lrocksdb
 #GLDLIBS += -lrt
 
 $(ML)/librockssnmp.$A: $(call GET_DEPS2,$M/BUILD_SRCS)

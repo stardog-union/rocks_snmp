@@ -38,7 +38,7 @@ public:
 
   virtual ~SnmpValUnsigned32(){};
 
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const {
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
     struct iovec builder;
 
     IoArray.reserve(IoArray.size() + 4);

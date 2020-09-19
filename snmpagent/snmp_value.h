@@ -131,7 +131,7 @@ public:
   static SnmpValInfPtr ValueFactory(ValueTypeCodes_e Type);
 
   /// append this variable to output stream
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const = 0;
+  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) = 0;
 
   bool operator<(const SnmpValInf &rhs) const {return m_Oid < rhs.m_Oid;}
 
@@ -193,7 +193,7 @@ public:
 
   virtual ~SnmpValLookup(){};
 
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const {};
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {};
 
   /// debug support, convert value to string for output
   virtual std::string &GetValueAsString(std::string &Output) {

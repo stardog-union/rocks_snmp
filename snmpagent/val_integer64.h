@@ -45,7 +45,7 @@ public:
 
   virtual ~SnmpValUnsigned64(){};
 
-  virtual void AppendToIovec(std::vector<struct iovec> &IoArray) const {
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
     struct iovec builder;
 
     IoArray.reserve(IoArray.size() + 4);
@@ -120,6 +120,8 @@ public:
   SnmpValCounter64(const OidVector_t &Oid)
       : SnmpValUnsigned64(Oid, gVarCounter64){};
 
+  SnmpValCounter64(unsigned ID)
+      : SnmpValUnsigned64(ID, gVarCounter64){};
 private:
   SnmpValCounter64(const SnmpValCounter64 &); //!< disabled:  copy operator
   SnmpValCounter64 &
@@ -150,7 +152,7 @@ public:
       m_Unsigned64Ptr = &m_Unsigned64;
   };
 
-  void AppendToIovec(std::vector<struct iovec> &IoArray) const override {
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
     SnmpValUnsigned64::AppendToIovec(IoArray);
     struct iovec builder;
 
