@@ -478,7 +478,7 @@ else
 $M/BUILD_ARCS := $(addsuffix .$A,$($M/BUILD_ARCS))
 endif
 
-$M/BUILD_OBJS := $(addprefix $(MO)/,$(addsuffix .$O,$(basename $($M/BUILD_SRCS))))
+$M/BUILD_OBJS := $(addprefix $(MO)/,$(addsuffix .$O,$(basename $(notdir $($M/BUILD_SRCS)))))
 
 $M/BUILD_SRCS := $(addprefix $(MS)/,$($M/BUILD_SRCS))
 $M/BUILD_BINS := $(addprefix $(MB)/,$($M/BUILD_BINS))
@@ -559,6 +559,9 @@ $(MO)/%.$O: $(MS)/%.c
 $(MO)/%.$O: $(MS)/%.cpp
 	$(COMPILE.cc) $< $(OUTPUT_OPTION)
 
+$(MO)/%.$O: $(MS)/*/%.cpp
+	$(COMPILE.cc) $< $(OUTPUT_OPTION)
+
 ## this rule seldom is used ...
 $(MO)/%.d: $(MS)/%.c
 	@echo -- Creating dependency file for $<
@@ -579,6 +582,17 @@ endif
 #   mev 12/18/03
 
 $(MO)/%.d: $(MS)/%.cpp
+	@echo -- Creating dependency file for $<
+ifeq ($(OS),Windows_NT)
+	$(patsubst /Z%,,@$(COMPILE.cc) $< $($M/DEPS))
+	@mvdeps $(addsuffix .i,$(basename $(notdir $<))) $@
+	@$(RM) $(addsuffix .i,$(basename $(notdir $<)))
+else
+	$(COMPILE.cc) -MM -E -MT $(basename $@).d -MT $(basename $@).o -MF $@ $<
+	@echo $(basename $@).o: $(basename $@).d >>$@
+endif
+
+$(MO)/%.d: $(MS)/*/%.cpp
 	@echo -- Creating dependency file for $<
 ifeq ($(OS),Windows_NT)
 	$(patsubst /Z%,,@$(COMPILE.cc) $< $($M/DEPS))

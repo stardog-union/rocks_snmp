@@ -4,3 +4,4 @@ _linux64
 *.o
 *.e
 rocksdb
+*.a
