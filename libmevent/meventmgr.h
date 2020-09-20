@@ -26,7 +26,7 @@
  * MEventMgr activates various MEventObj callback functions as events occur.
  * - Derived from CircularList so it can be anchor to timer list
  */
-class MEventMgr {
+class MEventMgr : public StateMachine {
   /****************************************************************
    *  Member objects
    ****************************************************************/
@@ -91,9 +91,9 @@ public:
   /// Thread safe means to add event to manager
   bool AddEvent(MEventPtr &Ptr);
 
-  /// Return MEventObj pointer if derived class is MEventObj, NULL otherwise
-  virtual class MEventObj *GetMEventObj() { return (NULL); };
-
+  MEventMgrPtr GetMEventMgrPtr() {
+    return std::static_pointer_cast<MEventMgr>(GetStateMachinePtr());
+  }
   //
   // timer only functions
   //

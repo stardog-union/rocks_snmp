@@ -63,7 +63,7 @@ public:
 
   // accessors
   /// Return MEventObj pointer if derived class is MEventObj, NULL otherwise
-  virtual class MEventObj *GetMEventObj() { return (this); };
+  //  virtual class MEventObj *GetMEventObj() { return (this); };
 
   /// establish the file descriptor (read / write / both)
   void SetFileHandle(int Handle) { m_Handle = Handle; };

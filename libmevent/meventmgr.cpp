@@ -433,10 +433,9 @@ void MEventMgr::ReceiveMgrMessage(unsigned Flags) {
  */
 void MEventMgr::AddEventList() {
   MEventPtr ptr;
-  MEventMgrPtr mgr;
+  MEventMgrPtr mgr = GetMEventMgrPtr();
 
   std::lock_guard<std::mutex> lock(m_AddMutex);
-  mgr.reset(this);
 
   for (auto it : m_ThreadedAdd) {
     // object will init itself to "this" as parent

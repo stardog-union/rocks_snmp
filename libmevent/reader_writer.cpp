@@ -276,7 +276,7 @@ void ReaderWriter::Close() {
 
     // inform the world
     SetState(RW_NODE_CLOSED);
-    SendEdge(RW_EDGE_CLOSED);
+    // SendEdge(RW_EDGE_CLOSED);  ... // bad idea, shared_from_this is already dead
   } // if
 
   return;

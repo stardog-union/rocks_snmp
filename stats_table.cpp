@@ -7,7 +7,6 @@
  * @brief
  */
 
-
 #include "stats_table.h"
 
 /**
@@ -30,10 +29,10 @@
  */
 
 // .1.3.6.1.4 is implied in communications
-static unsigned sAgentPrefix[]={1,38693,5};
-static SnmpAgent::SnmpAgentId sAgentId={sAgentPrefix, sizeof(sAgentPrefix)/sizeof(sAgentPrefix[0]),
-                               "RocksMonitor"};
-
+static unsigned sAgentPrefix[] = {1, 38693, 5};
+static SnmpAgent::SnmpAgentId sAgentId = {
+    sAgentPrefix, sizeof(sAgentPrefix) / sizeof(sAgentPrefix[0]),
+    "RocksMonitor"};
 
 /**
  * Initialize the data members.
@@ -42,24 +41,24 @@ static SnmpAgent::SnmpAgentId sAgentId={sAgentPrefix, sizeof(sAgentPrefix)/sizeo
  */
 StatsTable::StatsTable() {
 
-  m_Mgr.StartThreaded();
+  // everything is a "make_shared" object in libmevent & snmpagent world
+  m_Mgr = std::make_shared<MEventMgr>();
+
+  m_Mgr->StartThreaded();
 
   m_Agent = std::make_shared<SnmpAgent>(sAgentId, 0x7f000001, 705);
   MEventPtr mo_sa = m_Agent->GetMEventPtr();
 
-  m_Mgr.AddEvent(mo_sa);
+  m_Mgr->AddEvent(mo_sa);
 }
 
 StatsTable::~StatsTable() {
-  m_Mgr.Stop();
-  m_Mgr.ThreadWait();
+  m_Mgr->Stop();
+  m_Mgr->ThreadWait();
 } // StatsTable::~StatsTable
 
-
-bool StatsTable::AddTable(
-    const std::shared_ptr<rocksdb::Statistics> & stats,
-    unsigned TableId,
-    const std::string & TableName) {
+bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
+                          unsigned TableId, const std::string &TableName) {
 
   SnmpValInfPtr shared;
   SnmpValStringPtr new_string;
@@ -72,7 +71,8 @@ bool StatsTable::AddTable(
   // Put a table name in snmp tree
   //
   new_string = std::make_shared<SnmpValString>(0);
-  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix, null_oid, null_oid);
+  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix, null_oid,
+                                null_oid);
   new_string->assign(TableName.c_str());
   shared = new_string->GetSnmpValInfPtr();
   m_Agent->AddVariable(shared);
@@ -88,13 +88,15 @@ bool StatsTable::AddTable(
 
     row_oid[0] = idx + 1;
 
-    new_counter=std::make_shared<SnmpValTicker>(1, ticker.first, stats);
-    new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix, null_oid, row_oid);
+    new_counter = std::make_shared<SnmpValTicker>(1, ticker.first, stats);
+    new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                   null_oid, row_oid);
     shared = new_counter->GetSnmpValInfPtr();
     m_Agent->AddVariable(shared);
 
     new_string = std::make_shared<SnmpValString>(2);
-    new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix, null_oid, row_oid);
+    new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                  null_oid, row_oid);
     new_string->assign(ticker.second.c_str());
     shared = new_string->GetSnmpValInfPtr();
     m_Agent->AddVariable(shared);
@@ -104,4 +106,4 @@ bool StatsTable::AddTable(
 
   return true;
 
-}   // StatsTable::StatsTable
+} // StatsTable::StatsTable
