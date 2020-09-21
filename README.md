@@ -15,3 +15,25 @@ including column family specific ones, to slowly creep into the code.
 ## Notes
 It was easier to simply take the old code as is.  Only minimal updates / upgrades occurred before first release.
 I also want to point out the new subsystems, such as libevent and cmake, are better for new projects.
+
+## Example collectd.conf settings
+<pre>
+LoadPlugin snmp
+
+&lt;Plugin snmp&gt;
+	&lt;Data "stardog_table_1"&gt;
+		Type "counter"
+		Table true
+		InstancePrefix "data_statistics"
+		Instance ".1.3.6.1.4.1.38693.5.1.2"
+		Values   ".1.3.6.1.4.1.38693.5.1.1"
+	&lt;/Data&gt;
+	&lt;Host "server.example.com"&gt;
+		Address "127.0.0.1"
+		Version 2
+		Community "public"
+		Collect "stardog_table_1"
+		Interval 300
+	&lt;/Host&gt;
+&lt;/Plugin&gt;
+</pre>
