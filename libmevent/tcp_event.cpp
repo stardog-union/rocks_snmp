@@ -10,10 +10,11 @@
 #include <arpa/inet.h>
 #include <memory.h>
 #include <sys/fcntl.h>
+#include <sys/syslog.h>
 
 #include "meventmgr.h"
 #include "tcp_event.h"
-#include "util/logging.h"
+#include "logging.h"
 
 /**
  * Initialize the data members.

@@ -7,21 +7,12 @@
  * @brief Implementation of snmp agentX value objects (rfc 2741, January 2000)
  */
 
-#ifndef SNMP_VALUE_H
 #include "snmp_value.h"
-#endif
-
-#ifndef VAL_INTEGER_H
 #include "val_integer.h"
-#endif
-
-#ifndef VAL_INTEGER64_H
 #include "val_integer64.h"
-#endif
-
-#ifndef VAL_STRING_H
 #include "val_string.h"
-#endif
+
+#include "logging.h"
 
 struct VarBindHeader gVarNoSuchObject = {eNoSuchObject, 0};
 struct VarBindHeader gVarEndOfMibView = {eEndOfMibView, 0};

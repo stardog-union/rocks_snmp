@@ -9,13 +9,9 @@
 
 #include <memory.h>
 
-#ifndef SNMP_AGENT_H
 #include "snmp_agent.h"
-#endif
-
-#ifndef SNMP_REGISTERPDU_H
 #include "snmp_registerpdu.h"
-#endif
+#include "logging.h"
 
 /**
  * Initialize the data members.

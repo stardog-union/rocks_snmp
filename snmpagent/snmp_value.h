@@ -196,10 +196,10 @@ public:
   void AppendToIovec(std::vector<struct iovec> &IoArray) override {};
 
   /// debug support, convert value to string for output
-  virtual std::string &GetValueAsString(std::string &Output) {
+  std::string &GetValueAsString(std::string &Output) override {
     return (Output);
   };
-  virtual void assign(const char *String){};
+  void assign(const char *String) override {};
 
 }; // SnmpValLookup
 

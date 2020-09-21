@@ -8,9 +8,10 @@
  */
 
 #include <memory.h>
+#include <sys/syslog.h>
 
 #include "snmp_pdu.h"
-#include "util/logging.h"
+#include "logging.h"
 
 PduString gSnmpAgentPadString = {{0, 0, 0, 0}};
 

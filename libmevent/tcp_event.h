@@ -136,10 +136,10 @@ public:
   //
 
   /// allows initialization by independent event thread where appropriate
-  virtual void ThreadInit(MEventMgrPtr &Mgr);
+  void ThreadInit(MEventMgrPtr &Mgr) override;
 
   /// External callback used when time value expires
-  virtual void TimerCallback();
+  void TimerCallback() override;
 
 protected:
   /// internal routine for initiating tcp connect and setting state
@@ -148,7 +148,7 @@ protected:
   virtual bool InitiateConnect(int &RetVal, int &Errno);
 
   /// internal routine to close socket
-  virtual void Close();
+  void Close() override;
 
 private:
   TcpEventSocket(const TcpEventSocket &); //!< disabled:  copy operator

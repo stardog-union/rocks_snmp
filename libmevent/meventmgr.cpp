@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include "meventmgr.h"
-#include "util/logging.h"
+#include "logging.h"
 
 // exists in 2.6.17 and after, but not in all headers
 #ifndef EPOLLRDHUP

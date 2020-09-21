@@ -12,7 +12,7 @@
 #include "reader_writer.h"
 
 #include "meventmgr.h"
-#include "util/logging.h"
+#include "logging.h"
 
 /**
  * Initialize the data members.

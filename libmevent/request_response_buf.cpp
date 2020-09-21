@@ -11,9 +11,8 @@
 #include <errno.h>
 #include <string.h>
 
-#ifndef REQUEST_RESPONSE_BUF_H
 #include "request_response_buf.h"
-#endif
+#include "logging.h"
 
 /**
  * Initialize the data members.

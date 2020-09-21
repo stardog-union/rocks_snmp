@@ -31,18 +31,18 @@ public:
   virtual ~SnmpValError(){};
 
   void AppendToIovec(std::vector<struct iovec> &IoArray) override {};
-  virtual void AppendToIovec(const PduSubId &ValId,
+  void AppendToIovec(const PduSubId &ValId,
                              std::vector<struct iovec> &IoArray) const;
 
   /// debug support, convert value to string for output
-  virtual std::string &GetValueAsString(std::string &Output) {
+  std::string &GetValueAsString(std::string &Output) override {
     char buf[33];
     snprintf(buf, 33, "%u", (unsigned)m_ValType.m_Type);
     Output = buf;
     return (Output);
   };
 
-  virtual void assign(const char *String){};
+  void assign(const char *String) override {};
 
 private:
   SnmpValError();                     //!< disabled:  default constructor

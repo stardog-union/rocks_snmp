@@ -73,13 +73,13 @@ SnmpValString(unsigned Oid) : SnmpValInf(Oid), m_Length(0){};
   }
 
   /// debug support, convert value to string for output
-  virtual std::string &GetValueAsString(std::string &Output) {
+  std::string &GetValueAsString(std::string &Output) override {
     Output = m_String;
     return (Output);
   };
 
   /// ValueFactory support ... make everyone accept string input
-  virtual void assign(const char *String) {
+  void assign(const char *String) override {
     if (NULL != String)
       m_String = String;
     else
@@ -88,7 +88,7 @@ SnmpValString(unsigned Oid) : SnmpValInf(Oid), m_Length(0){};
     m_Length = m_String.length();
   };
 
-  virtual void assign(const char *String, size_t Length) {
+  void assign(const char *String, size_t Length) {
     if (NULL != String)
       m_String.assign(String, Length);
     else

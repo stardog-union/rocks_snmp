@@ -1,0 +1,44 @@
+config_setting(
+    name = "linux",
+    constraint_values = [
+        "@bazel_tools//platforms:linux",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "osx",
+    constraint_values = [
+        "@bazel_tools//platforms:osx",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "windows",
+    constraint_values = [
+        "@bazel_tools//platforms:windows",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "rockssnmp",
+    srcs = glob(["*.cpp"], exclude = [ "stats_test.cpp" ])
+      + glob(["libmevent/*.cpp"]) + glob(["snmpagent/*.cpp"]) + glob(["util/*.cpp"]),
+    deps = [
+        "//third_party/rocksdb",
+        ":headers",
+    ],
+    includes = [ "libmevent", "snmpagent", "util" ],
+    visibility = ["//visibility:public"],
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "headers",
+    hdrs = glob(["*.h"]) + glob(["libmevent/*.h"]) + glob(["snmpagent/*.h"]) + glob(["util/*.h"]),
+    deps = [
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -68,7 +68,7 @@ public:
   //
 
   // debug
-  void Dump();
+  void Dump() override;
 
 protected:
 private:

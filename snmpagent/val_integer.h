@@ -65,7 +65,7 @@ public:
   }
 
   /// debug support, convert value to string for output
-  virtual std::string &GetValueAsString(std::string &Output) {
+  std::string &GetValueAsString(std::string &Output) override {
     char buf[33];
     snprintf(buf, 33, "%u", m_Unsigned);
     Output = buf;
@@ -73,7 +73,7 @@ public:
   };
 
   /// ValueFactory support ... make everyone accept string input
-  virtual void assign(const char *String) {
+  void assign(const char *String) override {
     if (NULL != String)
       m_Unsigned = strtoul(String, NULL, 10);
   };

@@ -12,7 +12,7 @@
 
 #include "meventmgr.h"
 #include "request_response.h"
-#include "util/logging.h"
+#include "logging.h"
 
 /**
  * Initialize the data members.
@@ -193,7 +193,7 @@ void RequestResponse::ProcessNextRequest() {
       m_ReqQueue.pop();
 
       // setup write ... and write
-      m_WriteBuf = m_CurRequest.get();
+      m_WriteBuf = m_CurRequest;
       WriteAvailCallback();
     } // if
     else {
@@ -215,7 +215,7 @@ void RequestResponse::ProcessCurrentResponse() {
   //  start the request
   if (NULL != m_CurRequest.get()) {
     // setup read
-    m_ReadBuf = m_CurRequest.get();
+    m_ReadBuf = m_CurRequest;
     ReadAvailCallback();
   } // if
 

@@ -18,6 +18,7 @@
 #include "snmp_openpdu.h"
 #include "snmp_registerpdu.h"
 #include "val_error.h"
+#include "logging.h"
 
 /**
  * Initialize the data members.

@@ -141,19 +141,19 @@ public:
   //
 
   /// External callback used when time value expires
-  virtual void TimerCallback();
+  void TimerCallback() override;
 
   /// External callback when handle contains error flag
-  virtual bool ErrorCallback();
+  bool ErrorCallback() override;
 
   /// External callback when handle contains read flag
-  virtual bool ReadAvailCallback();
+  bool ReadAvailCallback() override;
 
   /// External callback when handle contains write flag
-  virtual bool WriteAvailCallback();
+  bool WriteAvailCallback() override;
 
   /// External callback when handle contains HUP and/or RDHUP flag
-  virtual bool CloseCallback(int);
+  bool CloseCallback(int) override;
 
 protected:
 private:

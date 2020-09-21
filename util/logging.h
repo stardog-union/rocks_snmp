@@ -147,7 +147,7 @@ public:
   virtual void vLog(unsigned Priority, const char *Format, va_list Va);
 
 protected:
-} /* LoggingLinux */;
+}; /* LoggingLinux */;
 
 // this inline function makes a quick decision as to whether or not
 //  the logging object should be called.  This is an attempt to

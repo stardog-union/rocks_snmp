@@ -18,10 +18,6 @@
 #include "snmp_pdu.h"
 #include "snmp_value.h"
 
-#ifndef STARTUP_LIST_H
-//    #include "startup_list.h"
-#endif
-
 typedef std::shared_ptr<class SnmpAgent> SnmpAgentPtr;
 
 /**
@@ -139,16 +135,16 @@ public:
   //
 
   /// allows initialization by independent event thread where appropriate
-  virtual void ThreadInit(MEventMgrPtr &Mgr);
+  void ThreadInit(MEventMgrPtr &Mgr) override;
 
   /// External callback used when time value expires
-  virtual void TimerCallback();
+  void TimerCallback() override;
 
   /// External callback when handle contains error flag
-  virtual bool ErrorCallback();
+  bool ErrorCallback() override;
 
   /// External callback when handle contains HUP and/or RDHUP flag
-  virtual bool CloseCallback(int);
+  bool CloseCallback(int) override;
 
   //
   // accessors

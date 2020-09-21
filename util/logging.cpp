@@ -22,14 +22,9 @@
  *  Includes
  ****************************************************************/
 
-#include <stdarg.h>
-
-#ifndef LOGGING_H
 #include "logging.h"
-#endif
 
-#include <sys/syslog.h>
-
+#include <stdarg.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -298,7 +293,7 @@ void LoggingLinux::Open(
     *gLogName = '\0';
   } // else
 
-  if (NULL != gLogProgram) {
+  if (NULL != LogProgram) {
     strncpy(gLogProgram, LogProgram, LOG_NAME_LENGTH);
     gLogProgram[LOG_NAME_LENGTH] = '\0';
   } // if

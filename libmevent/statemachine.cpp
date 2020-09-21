@@ -7,8 +7,10 @@
  * @brief Implementation of event/state machine for file descriptor operations
  */
 
+#include <sys/syslog.h>
+
 #include "statemachine.h"
-#include "util/logging.h"
+#include "logging.h"
 
 /**
  * Initialize the data members.
