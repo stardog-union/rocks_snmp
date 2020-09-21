@@ -1,13 +1,17 @@
 # rocks_snmp
 SNMP side channel for statistics retrieval from rocksdb
 
-This is really old code.  It dates from a time when I was playing with
-templates and other new toys.
+## Summary
+This project creates an SNMP agent based upon RFC 2741.  The agent allows retrieval of rocksdb statistics without requiring the application that uses rocksdb to create any statistics infrastructure.
 
-libmevent is a playful library similar in purpose to libevent, but not
-as robust.  I do not pretend that it is a worthy comparison.  Again,
-it was just for play.
+## Status
+This is really old code.  It dates from a time when I was playing with templates and other new toys.  
+It was used for monitoring Riak's leveldb, log files in production web environments, ArangoDB, and now Stardog.  
+Some of the code is almost 20 years old and written for a RedHat 5 distribution.
 
-snmpagent actually has had a few good uses for testing and performance
-measurement.  This module has actually been used for a couple of
-different projects.
+The first release only supports rocksdb::Statistics as SNMP counters.  Expect other properties, 
+including column family specific ones, to slowly creep into the code.
+
+## Notes
+It was easier to simply take the old code as is.  Only minimal updates / upgrades occurred before first release.
+I also want to point out the new subsystems, such as libevent and cmake, are better for new projects.
