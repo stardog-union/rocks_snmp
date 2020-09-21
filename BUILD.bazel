@@ -27,7 +27,7 @@ cc_library(
     srcs = glob(["*.cpp"], exclude = [ "stats_test.cpp" ])
       + glob(["libmevent/*.cpp"]) + glob(["snmpagent/*.cpp"]) + glob(["util/*.cpp"]),
     deps = [
-        "//third_party/rocksdb",
+        "@com_facebook_rocksdb//:rocksdb",
         ":headers",
     ],
     includes = [ "libmevent", "snmpagent", "util" ],
