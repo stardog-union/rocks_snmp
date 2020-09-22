@@ -240,8 +240,8 @@ bool SnmpAgent::EdgeNotification(
       // send down a level.  If not used then it is an error
       used = TcpEventSocket::EdgeNotification(EdgeId, Caller, PreNotify);
       if (!used) {
-        Logging(LOG_ERR, "SnmpAgent::%s: unknown edge value passed [EdgeId=%u]",
-                __func__, EdgeId);
+        Logging(LOG_ERR, "SnmpAgent::%s: unknown edge value passed [EdgeId=%u, State=%u]",
+                __func__, EdgeId, GetState());
         SendEdge(RW_EDGE_ERROR);
       } // if
       break;
