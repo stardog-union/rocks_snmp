@@ -107,37 +107,14 @@ bool SnmpAgent::AddVariable(
  * @author matthewv
  */
 void SnmpAgent::ThreadInit(MEventMgrPtr &Mgr) {
-#if 0
-    StartupListObject * startup;
-
-    // load static defined snmp variables
-    if (NULL!=m_StartupList)
-    {
-        for (startup=*m_StartupList; NULL!=startup; startup=startup->GetNext())
-        {
-            SnmpValStatic * var;
-            // (not work) var=dynamic_cast<SnmpValStatic *>(startup);
-            var=(SnmpValStatic *)startup;
-
-            if (NULL!=var)
-            {
-                SnmpValInfPtr var_inf;
-
-                var_inf=var;
-                AddVariable(var_inf);
-            }   // if
-            else
-            {
-                Logging(LOG_ERR, "%s: dynamic_cast failure", __func__);
-            }   // else
-        }   // if
-    }   // if
-#endif
   // (changed) TcpEventSocket contains code to start the socket if
   //  the ip and port are already set
   TcpEventSocket::ThreadInit(Mgr);
 
-  Connect();
+  Logging(LOG_ERR, "SnmpAgent::%s:  point 1, state %u", __func__, GetState());
+  if (TS_NODE_CLOSED == GetState()) {
+    Connect();  // this is unlikely
+  }
 
   return;
 
@@ -150,7 +127,9 @@ void SnmpAgent::ThreadInit(MEventMgrPtr &Mgr) {
  */
 void SnmpAgent::TimerCallback() {
   // try to activate snmp connection again
+  Logging(LOG_ERR, "SnmpAgent::%s:  state %u", __func__, GetState());
   if (TS_NODE_CLOSED == GetState()) {
+    Logging(LOG_ERR, "%s:  point 2", __func__);
     Connect();
   } // if
   else {
@@ -168,6 +147,7 @@ void SnmpAgent::TimerCallback() {
 bool SnmpAgent::ErrorCallback() {
   bool ret_flag;
 
+  Logging(LOG_ERR, "SnmpAgent::%s:  state %u", __func__, GetState());
   ret_flag = TcpEventSocket::ErrorCallback();
 
   // setup a call to reattach
@@ -211,9 +191,8 @@ bool SnmpAgent::EdgeNotification(
     StateMachinePtr &Caller, //!< what state machine object initiated the edge
     bool PreNotify) //!< for watchers, is the before or after owner processes
 {
-  bool used;
-
-  used = false;
+  bool used = {false};
+  Logging(LOG_ERR, "SnmpAgent::%s:  state %u, edge %u", __func__, GetState(), EdgeId);
 
   // only care about our own events
   if (this == Caller.get()) {

@@ -118,6 +118,7 @@ void TcpEventSocket::ThreadInit(MEventMgrPtr &Mgr) {
  */
 void TcpEventSocket::TimerCallback() {
   // tell the world we ran out of time
+  Logging(LOG_ERR, "%s:  point 1", __func__);
   SendEdge(TS_EDGE_TIMEOUT);
 
   // unless derived class eats the event, EdgeNotifications will
@@ -134,8 +135,9 @@ void TcpEventSocket::Connect() {
   bool good;
 
   // reset our socket state, be sure watches know the
-  //  the connection changed
+  //  the connection change d
   SendEdge(TS_EDGE_CLOSE_REQUEST);
+  Close();
 
   // do protocol specific connect
   good = InitiateConnect(ret_val, err_num);
@@ -143,6 +145,7 @@ void TcpEventSocket::Connect() {
   if (good) {
     // connect() called, review its state
     if (0 != ret_val && EINPROGRESS == err_num) {
+      Logging(LOG_ERR, "TcpEventSocket::%s:  point 1", __func__);
       // set up to await Write enabled
       RequestWrite();
       SetState(TS_NODE_CONNECTING);
@@ -152,6 +155,7 @@ void TcpEventSocket::Connect() {
 
     // unlikely, maybe on localhost call?
     else if (0 == ret_val) {
+      Logging(LOG_ERR, "TcpEventSocket::%s:  point 2", __func__);
       // connected state
       SetState(TS_NODE_ESTABLISHED);
       SendEdge(TS_EDGE_CONNECTED);
@@ -159,7 +163,7 @@ void TcpEventSocket::Connect() {
 
     else {
       // error
-      Logging(LOG_ERR, "%s:  connect() failed [err_num=%d, fd=%d].", __func__,
+      Logging(LOG_ERR, "TcpEventSocket::%s:  connect() failed [err_num=%d, fd=%d].", __func__,
               err_num, m_Handle);
       SendEdge(TS_EDGE_ERROR);
       ErrorCallback();
@@ -314,9 +318,9 @@ TcpEventSocket::EdgeNotification(
     StateMachinePtr & Caller,          //!< what state machine object initiated the edge
     bool PreNotify)                    //!< for watchers, is the before or after owner processes
 {
-    bool used;
+  bool used = {false};
 
-    used=false;
+  Logging(LOG_ERR, "TcpEventSocket::%s:  state %u, edge %u", __func__, GetState(), EdgeId);
 
     // only care about our own events
     if (this==Caller.get())
@@ -324,11 +328,13 @@ TcpEventSocket::EdgeNotification(
         switch(EdgeId)
         {
             case TS_EDGE_IP_GIVEN:
+              Logging(LOG_ERR, "TcpEventSocket::%s:  point 0", __func__);
                 Connect();
                 used=true;
                 break;
 
             case TS_EDGE_CONNECTED:
+              Logging(LOG_ERR, "TcpEventSocket::%s:  point 1", __func__);
               SetState(TS_NODE_ESTABLISHED);
                 used=true;
                 break;
@@ -342,11 +348,12 @@ TcpEventSocket::EdgeNotification(
                 break;
 
             case TS_EDGE_ERROR:
-                              SetState(TS_NODE_ERROR);
+              SetState(TS_NODE_ERROR);
               SendEdge(TS_EDGE_CLOSE_REQUEST);
                 break;
 
             case TS_EDGE_TIMEOUT:
+              Logging(LOG_ERR, "TcpEventSocket::%s:  point 2", __func__);
               SetState(TS_NODE_TIMEOUT);
               SendEdge(TS_EDGE_CLOSE_REQUEST);
                 break;

@@ -143,22 +143,24 @@ bool MEventMgr::AddEvent(MEventPtr &Ptr) {
 
 } // MEventMgr::AddEvent
 
-bool MEventMgr::TimerCreate(MEventPtr &Obj) {
+bool MEventMgr::TimerCreate(MEventPtr Obj) {
   bool ret_flag = {true};
   std::chrono::steady_clock::time_point new_point;
 
-  new_point = std::chrono::steady_clock::now() + Obj->GetInterval();
+  if (0 != Obj->GetIntervalMS() ) {
+    new_point = std::chrono::steady_clock::now() + Obj->GetInterval();
 
-  auto it = m_Timeouts.insert(
+    auto it = m_Timeouts.insert(
       std::pair<std::chrono::steady_clock::time_point, MEventPtr>(new_point,
                                                                   Obj));
 
-  // we do NOT remove previous timepoints for this object.
-  //  that occurs during a walk of m_TimePoints later
-  if (m_Timeouts.end() != it) {
-    Obj->SetNextTimeout(new_point);
-  } else {
-    ret_flag = false;
+    // we do NOT remove previous timepoints for this object.
+    //  that occurs during a walk of m_TimePoints later
+    if (m_Timeouts.end() != it) {
+      Obj->SetNextTimeout(new_point);
+    } else {
+      ret_flag = false;
+    }
   }
 
   return ret_flag;

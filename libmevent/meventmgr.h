@@ -98,7 +98,7 @@ public:
   // timer only functions
   //
   /// establish timer on object
-  bool TimerCreate(MEventPtr &Obj);
+  bool TimerCreate(MEventPtr Obj);
   /// repeat previous timer on object
   bool TimerRepeat(MEventPtr &Obj);
 

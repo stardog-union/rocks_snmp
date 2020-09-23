@@ -79,7 +79,8 @@ void MEventObj::AssignMgr(MEventMgrPtr &Parent) // parent to manage this object
     // place on timer list if m_Interval set
     if (0 != m_Interval.count()) {
       MEventPtr shared = GetMEventPtr();
-      m_MgrPtr->TimerCreate(shared);
+//      m_MgrPtr->TimerCreate(shared);
+      m_MgrPtr->TimerCreate(GetMEventPtr());
     }
   } // if
   else {
