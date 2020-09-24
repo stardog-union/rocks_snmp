@@ -32,7 +32,7 @@ protected:
   MEventPtr m_ParentPtr; //!< parent that "owns" this object, or NULL
   MEventMgrPtr m_MgrPtr; //!< parent that is a manager, or NULL
 
-  std::chrono::milliseconds m_Interval; //!< most recent interval used
+  std::chrono::milliseconds m_Interval{0}; //!< most recent interval used
   std::chrono::steady_clock::time_point m_NextTimeout;
   std::chrono::steady_clock::time_point
       m_LastTimeout; //!< set if previous event was timeout,
