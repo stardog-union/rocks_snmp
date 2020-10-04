@@ -192,7 +192,7 @@ bool SnmpAgent::EdgeNotification(
     bool PreNotify) //!< for watchers, is the before or after owner processes
 {
   bool used = {false};
-  Logging(LOG_ERR, "SnmpAgent::%s:  state %u, edge %u", __func__, GetState(), EdgeId);
+//  Logging(LOG_ERR, "SnmpAgent::%s:  state %u, edge %u", __func__, GetState(), EdgeId);
 
   // only care about our own events
   if (this == Caller.get()) {

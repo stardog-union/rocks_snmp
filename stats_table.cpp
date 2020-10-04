@@ -65,14 +65,15 @@ bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
   OidVector_t table_prefix = {TableId};
   int idx;
   OidVector_t row_oid, null_oid;
-  row_oid.push_back(0);
 
   //
   // Put a table name in snmp tree
   //
+  row_oid.push_back(0);
+  row_oid.push_back(TableId);
   new_string = std::make_shared<SnmpValString>(0);
-  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix, null_oid,
-                                null_oid);
+  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), null_oid, null_oid,
+                                row_oid);
   new_string->assign(TableName.c_str());
   shared = new_string->GetSnmpValInfPtr();
   m_Agent->AddVariable(shared);
@@ -81,12 +82,14 @@ bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
   // Retrieve the statistics map once immediately to get the
   //  map and its std::string members allocated and initialized
   //
+  row_oid.clear();
+  row_oid.push_back(0);
 
   idx = 0;
   for (auto ticker : rocksdb::TickersNameMap) {
     std::shared_ptr<SnmpValTicker> new_counter;
 
-    row_oid[0] = idx + 1;
+    row_oid[0] = ticker.first;
 
     new_counter = std::make_shared<SnmpValTicker>(1, ticker.first, stats);
     new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
