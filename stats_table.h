@@ -11,6 +11,8 @@
 #define STATS_TABLE_H
 
 #include "meventmgr.h"
+
+#include "rocksdb/cache.h"
 #include "rocksdb/statistics.h"
 #include "snmp_agent.h"
 #include "val_integer64.h"
@@ -57,10 +59,15 @@ public:
   bool AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
                 unsigned TableId, const std::string &name);
 
+  bool AddTable(const std::shared_ptr<rocksdb::Cache> &cache,
+                unsigned TableId, const std::string &name);
+
   /// debug
   void Dump();
 
 protected:
+  void UpdateTableNameList(unsigned TableId, const std::string &name);
+
 private:
   StatsTable(const StatsTable &);            //!< disabled:  copy operator
   StatsTable &operator=(const StatsTable &); //!< disabled:  assignment operator

@@ -8,6 +8,7 @@
  */
 
 #include "stats_table.h"
+#include "snmpagent/val_integer64.h"
 
 /**
  *  Enterprise:  1.3.6.1.4.1
@@ -66,23 +67,12 @@ bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
   int idx;
   OidVector_t row_oid, null_oid;
 
-  //
-  // Put a table name in snmp tree
-  //
-  row_oid.push_back(0);
-  row_oid.push_back(TableId);
-  new_string = std::make_shared<SnmpValString>(0);
-  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), null_oid, null_oid,
-                                row_oid);
-  new_string->assign(TableName.c_str());
-  shared = new_string->GetSnmpValInfPtr();
-  m_Agent->AddVariable(shared);
+  UpdateTableNameList(TableId, TableName);
 
   //
   // Retrieve the statistics map once immediately to get the
   //  map and its std::string members allocated and initialized
   //
-  row_oid.clear();
   row_oid.push_back(0);
 
   idx = 0;
@@ -109,4 +99,137 @@ bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
 
   return true;
 
-} // StatsTable::StatsTable
+} // StatsTable::AddTable (statistics)
+
+
+typedef size_t (rocksdb::Cache::*CacheGetFunction)(void) const;
+
+class CacheValCounter64 : public SnmpValUnsigned64 {
+public:
+
+
+  CacheValCounter64() = delete;
+
+  CacheValCounter64(const SnmpOid &Oid, const std::shared_ptr<rocksdb::Cache> & cache,
+                    CacheGetFunction Func)
+    : SnmpValUnsigned64(Oid, gVarCounter64), cache_weak(cache), value_func(Func) {};
+
+  CacheValCounter64(const OidVector_t &Oid, const std::shared_ptr<rocksdb::Cache> & cache,
+                    CacheGetFunction Func)
+    : SnmpValUnsigned64(Oid, gVarCounter64), cache_weak(cache), value_func(Func) {};
+
+  CacheValCounter64(unsigned ID, const std::shared_ptr<rocksdb::Cache> & cache,
+                    CacheGetFunction Func)
+    : SnmpValUnsigned64(ID, gVarCounter64), cache_weak(cache), value_func(Func) {};
+
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
+    std::shared_ptr<rocksdb::Cache> strong_ptr;
+
+    strong_ptr = cache_weak.lock();
+
+    if (strong_ptr) {
+      m_Unsigned64 = (uint64_t)((*strong_ptr).*value_func)();
+    } else {
+      m_Unsigned64 = 0;
+    }
+
+    SnmpValUnsigned64::AppendToIovec(IoArray);
+  };
+
+protected:
+  const std::weak_ptr<rocksdb::Cache> cache_weak;
+  CacheGetFunction value_func;
+
+};  // CacheValCounter64
+
+
+bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Cache> &cache,
+                          unsigned TableId, const std::string &TableName) {
+
+  SnmpValInfPtr shared;
+  SnmpValStringPtr new_string;
+  OidVector_t table_prefix = {TableId};
+  OidVector_t row_oid, null_oid;
+  std::shared_ptr<CacheValCounter64> new_counter;
+
+  UpdateTableNameList(TableId, TableName);
+
+  //
+  // Build the string elements and value
+  //  map and its std::string members allocated and initialized
+  //
+  row_oid.push_back(0);
+
+
+  // GetCapacity
+  row_oid[0] = 0;
+  new_counter = std::make_shared<CacheValCounter64>(1, cache, &rocksdb::Cache::GetCapacity);
+  new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                 null_oid, row_oid);
+  shared = new_counter->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+  new_string = std::make_shared<SnmpValString>(2);
+  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                null_oid, row_oid);
+  new_string->assign("rocksdb.cache.get.capacity");
+  shared = new_string->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+  // GetUsage (two versions of GetUsage.  static_cast to say want void param version)
+  row_oid[0] = 1;
+  CacheGetFunction xx = static_cast<size_t(rocksdb::Cache::*)(void) const>(&rocksdb::Cache::GetUsage);
+  new_counter = std::make_shared<CacheValCounter64>(1, cache, xx);
+
+  new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                 null_oid, row_oid);
+  shared = new_counter->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+  new_string = std::make_shared<SnmpValString>(2);
+  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                null_oid, row_oid);
+  new_string->assign("rocksdb.cache.get.usage");
+  shared = new_string->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+  // GetPinnedUsage
+  row_oid[0] = 2;
+  new_counter = std::make_shared<CacheValCounter64>(1, cache, &rocksdb::Cache::GetPinnedUsage);
+  new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                 null_oid, row_oid);
+  shared = new_counter->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+  new_string = std::make_shared<SnmpValString>(2);
+  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                null_oid, row_oid);
+  new_string->assign("rocksdb.cache.get.pinned.usage");
+  shared = new_string->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+  return true;
+
+} // StatsTable::AddTable (cache)
+
+
+void StatsTable::UpdateTableNameList(unsigned TableId, const std::string &TableName) {
+  SnmpValInfPtr shared;
+  SnmpValStringPtr new_string;
+  OidVector_t table_prefix = {TableId};
+  int idx;
+  OidVector_t row_oid, null_oid;
+
+  //
+  // Put a table name in snmp tree
+  //
+  row_oid.push_back(0);
+  row_oid.push_back(TableId);
+  new_string = std::make_shared<SnmpValString>(0);
+  new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), null_oid, null_oid,
+                                row_oid);
+  new_string->assign(TableName.c_str());
+  shared = new_string->GetSnmpValInfPtr();
+  m_Agent->AddVariable(shared);
+
+} // StatsTable::UpdateTableNameList
