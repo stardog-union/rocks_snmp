@@ -58,6 +58,26 @@ StatsTable::~StatsTable() {
   m_Mgr->ThreadWait();
 } // StatsTable::~StatsTable
 
+class SnmpValTicker : public SnmpValCounter64 {
+protected:
+  rocksdb::Tickers m_Ticker;
+  const std::shared_ptr<rocksdb::Statistics> m_Stats;
+
+public:
+  SnmpValTicker() = delete;
+  SnmpValTicker(unsigned ID, rocksdb::Tickers Ticker,
+                const std::shared_ptr<rocksdb::Statistics> Stats)
+      : SnmpValCounter64(ID), m_Ticker(Ticker), m_Stats(Stats) {}
+
+  virtual ~SnmpValTicker(){};
+
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
+    m_Unsigned64 = m_Stats->getTickerCount(m_Ticker);
+
+    SnmpValCounter64::AppendToIovec(IoArray);
+  }
+}; // class SnmpValTicker
+
 bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
                           unsigned TableId, const std::string &TableName) {
 
@@ -217,7 +237,6 @@ void StatsTable::UpdateTableNameList(unsigned TableId, const std::string &TableN
   SnmpValInfPtr shared;
   SnmpValStringPtr new_string;
   OidVector_t table_prefix = {TableId};
-  int idx;
   OidVector_t row_oid, null_oid;
 
   //
@@ -233,3 +252,95 @@ void StatsTable::UpdateTableNameList(unsigned TableId, const std::string &TableN
   m_Agent->AddVariable(shared);
 
 } // StatsTable::UpdateTableNameList
+
+
+class RocksValCounter64 : public SnmpValUnsigned64 {
+public:
+
+
+  RocksValCounter64() = delete;
+
+  RocksValCounter64(const SnmpOid &Oid, rocksdb::DB * DBptr, const char * Property)
+    : SnmpValUnsigned64(Oid, gVarCounter64), dbase(DBptr), property(Property) {}
+
+  RocksValCounter64(const OidVector_t &Oid, rocksdb::DB * DBptr, const char * Property)
+    : SnmpValUnsigned64(Oid, gVarCounter64), dbase(DBptr), property(Property) {}
+
+  RocksValCounter64(unsigned ID, rocksdb::DB * DBptr, const char * Property)
+    : SnmpValUnsigned64(ID, gVarCounter64), dbase(DBptr), property(Property) {}
+
+  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
+
+    if (nullptr != dbase) {
+      bool flag;
+      flag = dbase->GetAggregatedIntProperty(property, &m_Unsigned64);
+      if (!flag) {
+        m_Unsigned64 = 0;
+      }
+    } else {
+      m_Unsigned64 = 0;
+    }
+
+    SnmpValUnsigned64::AppendToIovec(IoArray);
+  };
+
+protected:
+  rocksdb::DB * dbase = nullptr;
+  std::string property;
+
+};  // RocksValCounter64
+
+
+bool StatsTable::AddTable(rocksdb::DB * DBase,
+                          unsigned TableId, const std::string &TableName) {
+
+  SnmpValInfPtr shared;
+  SnmpValStringPtr new_string;
+  OidVector_t table_prefix = {TableId};
+  OidVector_t row_oid, null_oid;
+  std::shared_ptr<RocksValCounter64> new_counter;
+
+  UpdateTableNameList(TableId, TableName);
+
+  //
+  // Build the string elements and value
+  //  map and its std::string members allocated and initialized
+  //
+  row_oid.push_back(0);
+
+  std::map<uint64_t, const char *> int_properties
+  {
+    // partial list of variables available per rocksdb/db.h
+    {0, "rocksdb.estimate-table-readers-mem"},
+    {1, "rocksdb.background-errors"},
+    {2, "rocksdb.cur-size-active-mem-table"},
+    {3, "rocksdb.cur-size-all-mem-tables"},
+    {4, "rocksdb.size-all-mem-tables"},
+    {5, "rocksdb.num-snapshots"},
+    {6, "rocksdb.estimate-live-data-size"},
+    {7, "rocksdb.total-sst-files-size"},
+    {8, "rocksdb.live-sst-files-size"},
+    {9, "rocksdb.block-cache-capacity"},
+    {10,"rocksdb.block-cache-usage"},
+    {11,"rocksdb.block-cache-pinned-usage"}
+  };
+
+  for (auto item : int_properties) {
+    row_oid[0] = item.first;
+    new_counter = std::make_shared<RocksValCounter64>(1, DBase, item.second);
+    new_counter->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                   null_oid, row_oid);
+    shared = new_counter->GetSnmpValInfPtr();
+    m_Agent->AddVariable(shared);
+
+    new_string = std::make_shared<SnmpValString>(2);
+    new_string->InsertTablePrefix(m_Agent->GetOidPrefix(), table_prefix,
+                                  null_oid, row_oid);
+    new_string->assign(item.second);
+    shared = new_string->GetSnmpValInfPtr();
+    m_Agent->AddVariable(shared);
+  } // for
+
+  return true;
+
+} // StatsTable::AddTable (db)

@@ -1,10 +1,10 @@
 /**
  * @file stats_table.h
  * @author matthewv
- * @date May 21, 2012
+ * @date Sept 16, 2020
  * @date Copyright 2012-2014
  *
- * @brief Classes to hold leveldb to snmp conversion objects
+ * @brief
  */
 
 #ifndef STATS_TABLE_H
@@ -13,30 +13,11 @@
 #include "meventmgr.h"
 
 #include "rocksdb/cache.h"
+#include "rocksdb/db.h"
 #include "rocksdb/statistics.h"
 #include "snmp_agent.h"
 #include "val_integer64.h"
 #include "val_string.h"
-
-class SnmpValTicker : public SnmpValCounter64 {
-protected:
-  rocksdb::Tickers m_Ticker;
-  const std::shared_ptr<rocksdb::Statistics> m_Stats;
-
-public:
-  SnmpValTicker() = delete;
-  SnmpValTicker(unsigned ID, rocksdb::Tickers Ticker,
-                const std::shared_ptr<rocksdb::Statistics> Stats)
-      : SnmpValCounter64(ID), m_Ticker(Ticker), m_Stats(Stats) {}
-
-  virtual ~SnmpValTicker(){};
-
-  void AppendToIovec(std::vector<struct iovec> &IoArray) override {
-    m_Unsigned64 = m_Stats->getTickerCount(m_Ticker);
-
-    SnmpValCounter64::AppendToIovec(IoArray);
-  }
-}; // class SnmpValTicker
 
 class StatsTable {
   /****************************************************************
@@ -60,6 +41,9 @@ public:
                 unsigned TableId, const std::string &name);
 
   bool AddTable(const std::shared_ptr<rocksdb::Cache> &cache,
+                unsigned TableId, const std::string &name);
+
+  bool AddTable(rocksdb::DB * dbase,
                 unsigned TableId, const std::string &name);
 
   /// debug
