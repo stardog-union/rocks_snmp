@@ -111,7 +111,6 @@ void SnmpAgent::ThreadInit(MEventMgrPtr &Mgr) {
   //  the ip and port are already set
   TcpEventSocket::ThreadInit(Mgr);
 
-  Logging(LOG_ERR, "SnmpAgent::%s:  point 1, state %u", __func__, GetState());
   if (TS_NODE_CLOSED == GetState()) {
     Connect();  // this is unlikely
   }

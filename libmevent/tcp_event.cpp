@@ -145,7 +145,6 @@ void TcpEventSocket::Connect() {
   if (good) {
     // connect() called, review its state
     if (0 != ret_val && EINPROGRESS == err_num) {
-      Logging(LOG_ERR, "TcpEventSocket::%s:  point 1", __func__);
       // set up to await Write enabled
       RequestWrite();
       SetState(TS_NODE_CONNECTING);
@@ -155,7 +154,6 @@ void TcpEventSocket::Connect() {
 
     // unlikely, maybe on localhost call?
     else if (0 == ret_val) {
-      Logging(LOG_ERR, "TcpEventSocket::%s:  point 2", __func__);
       // connected state
       SetState(TS_NODE_ESTABLISHED);
       SendEdge(TS_EDGE_CONNECTED);
@@ -320,91 +318,86 @@ TcpEventSocket::EdgeNotification(
 {
   bool used = {false};
 
-  Logging(LOG_ERR, "TcpEventSocket::%s:  state %u, edge %u", __func__, GetState(), EdgeId);
-
-    // only care about our own events
-    if (this==Caller.get())
+  // only care about our own events
+  if (this==Caller.get())
+  {
+    switch(EdgeId)
     {
-        switch(EdgeId)
-        {
-            case TS_EDGE_IP_GIVEN:
-              Logging(LOG_ERR, "TcpEventSocket::%s:  point 0", __func__);
-                Connect();
-                used=true;
-                break;
+      case TS_EDGE_IP_GIVEN:
+        Connect();
+        used=true;
+        break;
 
-            case TS_EDGE_CONNECTED:
-              Logging(LOG_ERR, "TcpEventSocket::%s:  point 1", __func__);
-              SetState(TS_NODE_ESTABLISHED);
-                used=true;
-                break;
+      case TS_EDGE_CONNECTED:
+        SetState(TS_NODE_ESTABLISHED);
+        used=true;
+        break;
 
-            case TS_EDGE_WRITE_WAIT:
-                used=true;
-                break;
+      case TS_EDGE_WRITE_WAIT:
+        used=true;
+        break;
 
-            case TS_EDGE_WRITABLE:
-                used=true;
-                break;
+      case TS_EDGE_WRITABLE:
+        used=true;
+        break;
 
-            case TS_EDGE_ERROR:
-              SetState(TS_NODE_ERROR);
-              SendEdge(TS_EDGE_CLOSE_REQUEST);
-                break;
+      case TS_EDGE_ERROR:
+        SetState(TS_NODE_ERROR);
+        SendEdge(TS_EDGE_CLOSE_REQUEST);
+        break;
 
-            case TS_EDGE_TIMEOUT:
-              Logging(LOG_ERR, "TcpEventSocket::%s:  point 2", __func__);
-              SetState(TS_NODE_TIMEOUT);
-              SendEdge(TS_EDGE_CLOSE_REQUEST);
-                break;
+      case TS_EDGE_TIMEOUT:
+        SetState(TS_NODE_TIMEOUT);
+        SendEdge(TS_EDGE_CLOSE_REQUEST);
+        break;
 
-            case TS_EDGE_READ_WAIT:
-                break;
+      case TS_EDGE_READ_WAIT:
+        break;
 
-            case TS_EDGE_READABLE:
-                break;
+      case TS_EDGE_READABLE:
+        break;
 
-            case TS_EDGE_CLOSE_REQUEST:
-                if (-1!=m_Handle)
-                    Close();
-                used=true;
-                break;
+      case TS_EDGE_CLOSE_REQUEST:
+        if (-1!=m_Handle)
+          Close();
+        used=true;
+        break;
 
-            //
-            // reader_writer events to watch
-            //
-            case RW_EDGE_WRITABLE:
-                if (TS_NODE_CONNECTING==m_CurNode)
-                  SendEdge(TS_EDGE_CONNECTED);
-                else
-                  SendEdge(TS_EDGE_WRITABLE);
-                used=true;
-                break;
+        //
+        // reader_writer events to watch
+        //
+      case RW_EDGE_WRITABLE:
+        if (TS_NODE_CONNECTING==m_CurNode)
+          SendEdge(TS_EDGE_CONNECTED);
+        else
+          SendEdge(TS_EDGE_WRITABLE);
+        used=true;
+        break;
 
-            // a write buffer fully sent
-            case RW_EDGE_SENT:
-                used=true;
-                break;
+        // a write buffer fully sent
+      case RW_EDGE_SENT:
+        used=true;
+        break;
 
 
-            default:
-                // send down a level.  If not used then it is an error
-                used=ReaderWriter::EdgeNotification(EdgeId, Caller, PreNotify);
-                if (!used && TS_EDGE_FIRST < EdgeId && TS_EDGE_LAST > EdgeId)
-                {
-                    Logging(LOG_ERR, "%s: unknown edge value passed [EdgeId=%u]",
-                            __PRETTY_FUNCTION__, EdgeId);
-                    ErrorCallback();
-                }   // if
-                break;
-        }   // switch
-    }   // if
-
-    else
-    {
+      default:
+        // send down a level.  If not used then it is an error
         used=ReaderWriter::EdgeNotification(EdgeId, Caller, PreNotify);
-    }   // else
+        if (!used && TS_EDGE_FIRST < EdgeId && TS_EDGE_LAST > EdgeId)
+        {
+          Logging(LOG_ERR, "%s: unknown edge value passed [EdgeId=%u]",
+                  __PRETTY_FUNCTION__, EdgeId);
+          ErrorCallback();
+        }   // if
+        break;
+    }   // switch
+  }   // if
 
-    return(used);
+  else
+  {
+    used=ReaderWriter::EdgeNotification(EdgeId, Caller, PreNotify);
+  }   // else
+
+  return(used);
 
 }   // TcpEventSocket::EdgeNotifications
