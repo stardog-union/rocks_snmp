@@ -36,7 +36,7 @@ main(int argc, char ** argv)
     {
         bool ret_flag;
 
-        StatsTable table;
+        StatsTable table(true);
 
 
         // StatsTable adds its components to SnmpAgent ... and gets refreshed how?
