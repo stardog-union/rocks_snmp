@@ -450,6 +450,7 @@ void MEventMgr::AddEventList() {
     it->ThreadInit(mgr);
     m_Events.insert(it);
   } // for
+  m_ThreadedAdd.clear();
 
   return;
 

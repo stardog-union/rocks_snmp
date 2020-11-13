@@ -128,6 +128,7 @@ public:
   /// Wait for previous Stop() to complete, blocking
   bool ThreadWait() {
     m_Thread.join();
+    PurgeEvents();
     return (m_EndStatus);
   };
 
