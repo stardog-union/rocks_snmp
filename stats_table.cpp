@@ -40,12 +40,14 @@ static SnmpAgent::SnmpAgentId sAgentId = {
  * @date Created 05/21/12
  * @author matthewv
  */
-StatsTable::StatsTable() {
+StatsTable::StatsTable(bool StartWorker) {
 
   // everything is a "make_shared" object in libmevent & snmpagent world
   m_Mgr = std::make_shared<MEventMgr>();
 
-  m_Mgr->StartThreaded();
+  if (StartWorker) {
+    m_Mgr->StartThreaded();
+  } // if
 
   m_Agent = std::make_shared<SnmpAgent>(sAgentId, 0x7f000001, 705);
   MEventPtr mo_sa = m_Agent->GetMEventPtr();

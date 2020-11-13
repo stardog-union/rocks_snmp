@@ -33,7 +33,8 @@ private:
    *  Member functions
    ****************************************************************/
 public:
-  StatsTable();
+  StatsTable() = delete;
+  StatsTable(bool StartWorker = true);
 
   virtual ~StatsTable();
 
