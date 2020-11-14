@@ -10,6 +10,7 @@
 #ifndef MEVENTMGR_H
 #define MEVENTMGR_H
 
+#include <atomic>
 #include <chrono>
 #include <iterator>
 #include <map>
@@ -49,7 +50,7 @@ public:
   };
 
 protected:
-  bool m_Running;    //!< true when while loop should be active
+  std::atomic_bool m_Running;    //!< true when while loop should be active
   bool m_EndStatus;  //!< true loop exited without errors
   int m_EpollFd;     //!< file handle used by epoll
   int m_SelfPipe[2]; //!< pipe to facilitate stopping epoll loop
@@ -127,7 +128,9 @@ public:
 
   /// Wait for previous Stop() to complete, blocking
   bool ThreadWait() {
-    m_Thread.join();
+    if (m_Thread.joinable()) {
+      m_Thread.join();
+    }
     PurgeEvents();
     return (m_EndStatus);
   };
