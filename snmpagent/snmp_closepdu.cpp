@@ -9,6 +9,7 @@
  */
 
 #include <memory.h>
+#include <stdio.h>
 
 #ifndef SNMP_AGENT_H
 #include "snmp_agent.h"

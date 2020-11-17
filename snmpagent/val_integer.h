@@ -11,6 +11,7 @@
 #define VAL_INTEGER_H
 
 #include <set>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>

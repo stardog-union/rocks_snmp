@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <set>
+#include <stdio.h>
 
 /**
  * State machine is defined by nodes and edges.  Consider it

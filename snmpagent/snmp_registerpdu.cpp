@@ -8,6 +8,7 @@
  */
 
 #include <memory.h>
+#include <stdio.h>
 
 #include "snmp_agent.h"
 #include "snmp_registerpdu.h"
