@@ -8,6 +8,7 @@
  */
 
 #include <memory.h>
+#include <stdio.h>
 #include <sys/syslog.h>
 
 #include "snmp_pdu.h"

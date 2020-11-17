@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <stdio.h>
 
 #ifndef SNMP_VALUE_H
 #include "snmp_value.h"

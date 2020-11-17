@@ -12,6 +12,7 @@
 
 #include <set>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>

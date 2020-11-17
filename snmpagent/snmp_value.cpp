@@ -7,6 +7,8 @@
  * @brief Implementation of snmp agentX value objects (rfc 2741, January 2000)
  */
 
+#include <stdio.h>
+
 #include "snmp_value.h"
 #include "val_integer.h"
 #include "val_integer64.h"
