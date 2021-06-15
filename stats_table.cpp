@@ -324,7 +324,10 @@ bool StatsTable::AddTable(rocksdb::DB * DBase,
     {8, "rocksdb.live-sst-files-size"},
     {9, "rocksdb.block-cache-capacity"},
     {10,"rocksdb.block-cache-usage"},
-    {11,"rocksdb.block-cache-pinned-usage"}
+    {11,"rocksdb.block-cache-pinned-usage"},
+    {12,"rocksdb.table-cache-capacity"},
+    {13,"rocksdb.table-cache-usage"},
+    {14,"rocksdb.is-write-stopped"}
   };
 
   for (auto item : int_properties) {
