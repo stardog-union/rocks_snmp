@@ -8,8 +8,9 @@
  */
 
 #include "stats_table.h"
+#include "stats_table_impl.h"
 #include "snmpagent/val_integer64.h"
-
+#include "snmpagent/val_string.h"
 /**
  *  Enterprise:  1.3.6.1.4.1
  *Agent prefix:  38693  matthewv.com enterprise
@@ -35,12 +36,21 @@ static SnmpAgent::SnmpAgentId sAgentId = {
     sAgentPrefix, sizeof(sAgentPrefix) / sizeof(sAgentPrefix[0]),
     "RocksMonitor"};
 
+StatsTable* StatsTable::NewStatsTable(bool StartWorker) {
+
+  return new StatsTableImpl(StartWorker);
+
+} // StatsTable::NewStatsTable
+
+StatsTable::StatsTable() {};
+
+
 /**
  * Initialize the data members.
  * @date Created 05/21/12
  * @author matthewv
  */
-StatsTable::StatsTable(bool StartWorker) {
+StatsTableImpl::StatsTableImpl(bool StartWorker) {
 
   // everything is a "make_shared" object in libmevent & snmpagent world
   m_Mgr = std::make_shared<MEventMgr>();
@@ -55,10 +65,10 @@ StatsTable::StatsTable(bool StartWorker) {
   m_Mgr->AddEvent(mo_sa);
 }
 
-StatsTable::~StatsTable() {
+StatsTableImpl::~StatsTableImpl() {
   m_Mgr->Stop();
   m_Mgr->ThreadWait();
-} // StatsTable::~StatsTable
+} // StatsTableImpl::~StatsTable
 
 class SnmpValTicker : public SnmpValCounter64 {
 protected:
@@ -80,7 +90,7 @@ public:
   }
 }; // class SnmpValTicker
 
-bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
+bool StatsTableImpl::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
                           unsigned TableId, const std::string &TableName) {
 
   SnmpValInfPtr shared;
@@ -121,7 +131,7 @@ bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Statistics> &stats,
 
   return true;
 
-} // StatsTable::AddTable (statistics)
+} // StatsTableImpl::AddTable (statistics)
 
 
 typedef size_t (rocksdb::Cache::*CacheGetFunction)(void) const;
@@ -165,7 +175,7 @@ protected:
 };  // CacheValCounter64
 
 
-bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Cache> &cache,
+bool StatsTableImpl::AddTable(const std::shared_ptr<rocksdb::Cache> &cache,
                           unsigned TableId, const std::string &TableName) {
 
   SnmpValInfPtr shared;
@@ -232,10 +242,10 @@ bool StatsTable::AddTable(const std::shared_ptr<rocksdb::Cache> &cache,
 
   return true;
 
-} // StatsTable::AddTable (cache)
+} // StatsTableImpl::AddTable (cache)
 
 
-void StatsTable::UpdateTableNameList(unsigned TableId, const std::string &TableName) {
+void StatsTableImpl::UpdateTableNameList(unsigned TableId, const std::string &TableName) {
   SnmpValInfPtr shared;
   SnmpValStringPtr new_string;
   OidVector_t table_prefix = {TableId};
@@ -253,7 +263,7 @@ void StatsTable::UpdateTableNameList(unsigned TableId, const std::string &TableN
   shared = new_string->GetSnmpValInfPtr();
   m_Agent->AddVariable(shared);
 
-} // StatsTable::UpdateTableNameList
+} // StatsTableImpl::UpdateTableNameList
 
 
 class RocksValCounter64 : public SnmpValUnsigned64 {
@@ -293,7 +303,7 @@ protected:
 };  // RocksValCounter64
 
 
-bool StatsTable::AddTable(rocksdb::DB * DBase,
+bool StatsTableImpl::AddTable(rocksdb::DB * DBase,
                           unsigned TableId, const std::string &TableName) {
 
   SnmpValInfPtr shared;
@@ -348,4 +358,4 @@ bool StatsTable::AddTable(rocksdb::DB * DBase,
 
   return true;
 
-} // StatsTable::AddTable (db)
+} // StatsTableImpl::AddTable (db)
