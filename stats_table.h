@@ -26,9 +26,9 @@ private:
    *  Member functions
    ****************************************************************/
 public:
-  StatsTable();
+  StatsTable() {};
 
-  virtual ~StatsTable();
+  virtual ~StatsTable() {};
 
   static StatsTable* NewStatsTable(bool StartWorker = true);
 
@@ -40,9 +40,6 @@ public:
 
   virtual bool AddTable(rocksdb::DB * dbase,
                         unsigned TableId, const std::string &name) = 0;
-
-  /// debug
-  virtual void Dump() = 0;
 
 private:
   StatsTable(const StatsTable &);            //!< disabled:  copy operator

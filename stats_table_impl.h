@@ -45,9 +45,6 @@ public:
   bool AddTable(rocksdb::DB * dbase,
                 unsigned TableId, const std::string &name) override;
 
-  /// debug
-  void Dump() override;
-
 protected:
   void UpdateTableNameList(unsigned TableId, const std::string &name);
 

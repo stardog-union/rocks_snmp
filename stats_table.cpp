@@ -42,8 +42,6 @@ StatsTable* StatsTable::NewStatsTable(bool StartWorker) {
 
 } // StatsTable::NewStatsTable
 
-StatsTable::StatsTable() {};
-
 
 /**
  * Initialize the data members.
